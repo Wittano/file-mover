@@ -1,7 +1,8 @@
-[Pictures]
-src = [ "/tmp/test" ]
-dest = "/tmp/test"
+[Picture]
+src = "/tmp/test"
+dest = "/tmp/test2"
+recursive = true
 
-[Documents]
-src = [ "/tmp/test1/*", "/tmp/test2" ]
-dest = "/tmp/test"
+[Music]
+src = "/tmp/test2/*.mp4"
+dest = "/tmp"
