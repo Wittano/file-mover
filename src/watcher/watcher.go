@@ -1,8 +1,9 @@
 package watcher
 
 import (
-	"github.com/fsnotify/fsnotify"
 	"log"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 type MyWatcher struct {
@@ -51,8 +52,8 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w MyWatcher) AddFileToObservable(path ...string) {
-	for _, p := range path {
+func (w MyWatcher) AddFileToObservable(paths ...string) {
+	for _, p := range paths {
 		if err := w.Add(p); err != nil {
 			log.Printf("Cannot add %s file/directory to tracing list: %s", p, err)
 		}

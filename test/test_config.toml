@@ -1,0 +1,7 @@
+[Pictures]
+src = [ "/tmp/test" ]
+dest = "/tmp/test"
+
+[Documents]
+src = [ "/tmp/test1/*", "/tmp/test2" ]
+dest = "/tmp/test"

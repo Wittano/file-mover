@@ -1,8 +1,9 @@
 package test
 
 import (
-	"github.com/wittano/file-mover/src/watcher"
 	"testing"
+
+	"github.com/wittano/file-mover/src/watcher"
 )
 
 func TestAddDirectoryToObservable(t *testing.T) {
