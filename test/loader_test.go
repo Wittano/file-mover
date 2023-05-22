@@ -21,7 +21,7 @@ func TestLoadConfig(t *testing.T) {
 		t.Fatalf("Invalid source paths. Expacted [ '/tmp/test' ], acually %v", dir.Src)
 	}
 
-	if dir.Dest != "/tmp/test" {
+	if dir.Dest != "/tmp/test2" {
 		t.Fatalf("Invalid destination path paths. Expacted '/tmp/test', acually %s", dir.Dest)
 	}
 }

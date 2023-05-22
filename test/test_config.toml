@@ -1,8 +1,8 @@
 [Picture]
-src = "/tmp/test"
+src = [ "/tmp/test" ]
 dest = "/tmp/test2"
 recursive = true
 
 [Music]
-src = "/tmp/test2/*.mp4"
+src = [ "/tmp/test2/*.mp4" ]
 dest = "/tmp"
