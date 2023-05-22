@@ -1,6 +1,8 @@
 package watcher
 
 import (
+	"github.com/wittano/file-mover/src/config"
+	"github.com/wittano/file-mover/src/path"
 	"log"
 
 	"github.com/fsnotify/fsnotify"
@@ -52,7 +54,20 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w MyWatcher) AddFileToObservable(paths ...string) {
+func (w MyWatcher) AddFileToObservable(config config.Config) {
+	for _, dir := range config.Dirs {
+		for _, src := range dir.Src {
+			paths, err := path.GetPathsFromPattern(src)
+			if err != nil {
+				log.Fatalf("Invalid path: %s", err)
+			}
+
+			w.addFileToObservable(paths...)
+		}
+	}
+}
+
+func (w MyWatcher) addFileToObservable(paths ...string) {
 	for _, p := range paths {
 		if err := w.Add(p); err != nil {
 			log.Printf("Cannot add %s file/directory to tracing list: %s", p, err)
