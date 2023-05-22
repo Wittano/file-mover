@@ -1,4 +1,7 @@
 output = file-mover
 
-build:
+build: test
 	go build -o bin/$(output) src/*.go
+
+test:
+	go test ./test
