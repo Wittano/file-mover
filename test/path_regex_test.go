@@ -26,6 +26,35 @@ func TestGetPathsFromRegexButRegexStartFromStar(t *testing.T) {
 	}
 }
 
+func TestGetPathsFromRegexButFunctionReturnNil(t *testing.T) {
+	p := createTempDirWithFile(t)
+	exp := strings.Replace(p, "test", "tset", 1)
+
+	paths, err := path.GetPathsFromPattern(exp)
+	if err != nil || paths != nil || len(paths) != 0 {
+		t.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
+	}
+}
+
+func BenchmarkGetPathsFromRegex(b *testing.B) {
+	dir := b.TempDir()
+	pattern := "test"
+
+	_, err := os.CreateTemp(dir, pattern)
+	if err != nil {
+		b.Fatalf("Failed created temp file. %s", err)
+	}
+
+	exp := dir + "/" + pattern
+
+	for i := 0; i < b.N; i++ {
+		paths, err := path.GetPathsFromPattern(exp)
+		if err == nil && len(paths) != 1 {
+			b.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
+		}
+	}
+}
+
 func createTempDirWithFile(t *testing.T) string {
 	dir := t.TempDir()
 	pattern := "test"

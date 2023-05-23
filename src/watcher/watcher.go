@@ -54,7 +54,7 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w MyWatcher) AddFileToObservable(config config.Config) {
+func (w MyWatcher) AddFilesToObservable(config config.Config) {
 	for _, dir := range config.Dirs {
 		for _, src := range dir.Src {
 			paths, err := path.GetPathsFromPattern(src)
@@ -62,12 +62,14 @@ func (w MyWatcher) AddFileToObservable(config config.Config) {
 				log.Fatalf("Invalid path: %s", err)
 			}
 
-			w.addFileToObservable(paths...)
+			if paths != nil {
+				w.addFilesToObservable(paths...)
+			}
 		}
 	}
 }
 
-func (w MyWatcher) addFileToObservable(paths ...string) {
+func (w MyWatcher) addFilesToObservable(paths ...string) {
 	for _, p := range paths {
 		if err := w.Add(p); err != nil {
 			log.Printf("Cannot add %s file/directory to tracing list: %s", p, err)

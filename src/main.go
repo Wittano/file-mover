@@ -17,7 +17,7 @@ func main() {
 	}
 
 	w := watcher.NewWatcher()
-	w.AddFileToObservable(conf)
+	w.AddFilesToObservable(conf)
 
 	go w.ObserveFiles()
 
