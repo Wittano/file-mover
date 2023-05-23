@@ -14,7 +14,7 @@ func GetPathsFromPattern(path string) ([]string, error) {
 		return nil, err
 	}
 
-	pattern = string(regex.ReplaceAll([]byte(pattern), []byte("\\w*")))
+	pattern = "^" + string(regex.ReplaceAll([]byte(pattern), []byte("\\w*"))) + "$"
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
