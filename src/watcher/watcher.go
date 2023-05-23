@@ -102,8 +102,9 @@ func moveFileToDestination(dest string, paths ...string) {
 		_, filename := p.Split(src)
 		newPath := dest + "/" + filename
 
-		if err := os.Rename(src, newPath); err != nil {
-			log.Printf("Failed moved file from %s to %s. %s", newPath, dest, err)
+		if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
+			os.Rename(src, newPath)
+			log.Printf("Moved file from %s to %s", newPath, dest)
 		}
 	}
 }
