@@ -1,16 +1,19 @@
 package watcher
 
 import (
+	"errors"
+	"github.com/fsnotify/fsnotify"
 	"github.com/wittano/file-mover/src/config"
 	"github.com/wittano/file-mover/src/path"
 	"log"
-
-	"github.com/fsnotify/fsnotify"
+	"os"
+	p "path"
 )
 
 type MyWatcher struct {
 	*fsnotify.Watcher
-	blocker chan bool
+	blocker      chan bool
+	fileObserved map[string]string
 }
 
 func NewWatcher() MyWatcher {
@@ -24,6 +27,7 @@ func NewWatcher() MyWatcher {
 	return MyWatcher{
 		w,
 		blocker,
+		make(map[string]string),
 	}
 }
 
@@ -36,7 +40,9 @@ func (w *MyWatcher) ObserveFiles() {
 				return
 			}
 
-			log.Printf("Event %s", e)
+			if e.Has(fsnotify.Create) || e.Has(fsnotify.Rename) {
+				moveFileToDestination(w.fileObserved[e.Name], e.Name)
+			}
 		case err, ok := <-w.Errors:
 			if !ok {
 				w.blocker <- false
@@ -63,16 +69,41 @@ func (w MyWatcher) AddFilesToObservable(config config.Config) {
 			}
 
 			if paths != nil {
+				go w.fillFileObserved(paths, dir.Dest)
+
 				w.addFilesToObservable(paths...)
+				go moveFileToDestination(dir.Dest, paths...)
 			}
 		}
 	}
 }
 
+func (w MyWatcher) fillFileObserved(src []string, dest string) {
+	for _, path := range src {
+		w.fileObserved[path] = dest
+	}
+}
+
 func (w MyWatcher) addFilesToObservable(paths ...string) {
-	for _, p := range paths {
-		if err := w.Add(p); err != nil {
-			log.Printf("Cannot add %s file/directory to tracing list: %s", p, err)
+	for _, path := range paths {
+		if err := w.Add(path); err != nil {
+			log.Printf("Cannot add %s file/directory to tracing list: %s", path, err)
+		}
+	}
+}
+
+func moveFileToDestination(dest string, paths ...string) {
+	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
+		log.Printf("Destination directory %s not exist", dest)
+		return
+	}
+
+	for _, src := range paths {
+		_, filename := p.Split(src)
+		newPath := dest + "/" + filename
+
+		if err := os.Rename(src, newPath); err != nil {
+			log.Printf("Failed moved file from %s to %s. %s", newPath, dest, err)
 		}
 	}
 }
