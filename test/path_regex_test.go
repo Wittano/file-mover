@@ -58,14 +58,11 @@ func BenchmarkGetPathsFromRegex(b *testing.B) {
 }
 
 func createTempDirWithFile(t *testing.T) string {
-	dir := t.TempDir()
-	pattern := "test"
-
-	file, err := os.CreateTemp(dir, pattern)
+	file, err := os.CreateTemp(t.TempDir(), "test")
 	if err != nil {
 		t.Fatalf("Failed created temp file. %s", err)
 	}
 	defer file.Close()
 
-	return dir + "/" + pattern
+	return file.Name()
 }
