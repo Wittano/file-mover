@@ -7,11 +7,9 @@ import (
 )
 
 func main() {
-	var configPath string
+	flags := config.ParseFlags()
 
-	parseFlags(&configPath)
-
-	conf, err := config.LoadConfig(configPath)
+	conf, err := config.LoadConfig(flags.ConfigPath)
 	if err != nil {
 		log.Fatalf("Failed loaded configuration: %s", err)
 	}
@@ -19,6 +17,7 @@ func main() {
 	w := watcher.NewWatcher()
 	w.AddFilesToObservable(conf)
 
+	go w.UpdateObservableFileList(flags)
 	go w.ObserveFiles()
 
 	w.WaitForEvents()

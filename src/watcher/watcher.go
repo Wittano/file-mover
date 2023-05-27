@@ -8,7 +8,11 @@ import (
 	"log"
 	"os"
 	p "path"
+	"sync"
+	"time"
 )
+
+var mutex sync.Mutex
 
 type MyWatcher struct {
 	*fsnotify.Watcher
@@ -60,7 +64,7 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w MyWatcher) AddFilesToObservable(config config.Config) {
+func (w *MyWatcher) AddFilesToObservable(config config.Config) {
 	for _, dir := range config.Dirs {
 		for _, src := range dir.Src {
 			paths, err := path.GetPathsFromPattern(src)
@@ -69,7 +73,7 @@ func (w MyWatcher) AddFilesToObservable(config config.Config) {
 			}
 
 			if paths != nil {
-				go w.fillFileObserved(paths, dir.Dest)
+				go w.fillFileObservedMap(paths, dir.Dest)
 
 				w.addFilesToObservable(paths...)
 				go moveFileToDestination(dir.Dest, paths...)
@@ -78,16 +82,51 @@ func (w MyWatcher) AddFilesToObservable(config config.Config) {
 	}
 }
 
-func (w MyWatcher) fillFileObserved(src []string, dest string) {
+func (w *MyWatcher) fillFileObservedMap(src []string, dest string) {
 	for _, path := range src {
+		mutex.Lock()
 		w.fileObserved[path] = dest
+		mutex.Unlock()
 	}
 }
 
-func (w MyWatcher) addFilesToObservable(paths ...string) {
+func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	for _, path := range paths {
 		if err := w.Add(path); err != nil {
 			log.Printf("Cannot add %s file/directory to tracing list: %s", path, err)
+		}
+	}
+}
+
+func (w *MyWatcher) UpdateObservableFileList(flags config.FlagConfig) {
+	for {
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		time.Sleep(flags.UpdateInterval)
+
+		go w.removeUnnecessaryFiles(&wg)
+		go func(wg *sync.WaitGroup) {
+			conf, err := config.LoadConfig(flags.ConfigPath)
+			if err != nil {
+				log.Fatalf("Failed loaded configuration: %s", err)
+			}
+
+			w.AddFilesToObservable(conf)
+
+			wg.Done()
+		}(&wg)
+
+		wg.Wait()
+	}
+}
+
+func (w *MyWatcher) removeUnnecessaryFiles(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for _, path := range w.WatchList() {
+		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+			w.Remove(path)
 		}
 	}
 }
