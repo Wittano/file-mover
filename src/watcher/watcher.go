@@ -154,7 +154,7 @@ func moveFileToDestination(dest string, paths ...string) {
 
 		if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
 			os.Rename(src, newPath)
-			log.Printf("Moved file from %s to %s", newPath, dest)
+			log.Printf("Moved file from %s to %s", src, dest)
 		}
 	}
 }
