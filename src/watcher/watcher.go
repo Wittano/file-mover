@@ -45,7 +45,9 @@ func (w *MyWatcher) ObserveFiles() {
 			}
 
 			if e.Has(fsnotify.Create) || e.Has(fsnotify.Rename) {
-				moveFileToDestination(w.fileObserved[e.Name], e.Name)
+				if dir, ok := w.fileObserved[e.Name]; ok {
+					moveFileToDestination(dir, e.Name)
+				}
 			}
 		case err, ok := <-w.Errors:
 			if !ok {
@@ -67,7 +69,15 @@ func (w MyWatcher) WaitForEvents() {
 func (w *MyWatcher) AddFilesToObservable(config config.Config) {
 	for _, dir := range config.Dirs {
 		for _, src := range dir.Src {
-			paths, err := path.GetPathsFromPattern(src)
+			var paths []string
+			var err error
+
+			if dir.Recursive {
+				paths, err = path.GetPathFromPatternRecursive(src)
+			} else {
+				paths, err = path.GetPathsFromPattern(src)
+			}
+
 			if err != nil {
 				log.Fatalf("Invalid path: %s", err)
 			}
@@ -99,8 +109,9 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 }
 
 func (w *MyWatcher) UpdateObservableFileList(flags config.FlagConfig) {
+	var wg sync.WaitGroup
+
 	for {
-		var wg sync.WaitGroup
 		wg.Add(2)
 
 		time.Sleep(flags.UpdateInterval)
