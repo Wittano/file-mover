@@ -74,7 +74,7 @@ func GetPathFromPatternRecursive(path string) ([]string, error) {
 			paths = append(paths[0:size], recPath...)
 			size = uint(len(paths))
 		} else {
-			path, err := GetPathsFromPattern(dir + "/" + f.Name())
+			path, err := GetPathsFromPattern(p.Join(dir, f.Name()))
 			if err != nil {
 				return nil, err
 			}

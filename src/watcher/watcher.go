@@ -150,7 +150,7 @@ func moveFileToDestination(dest string, paths ...string) {
 
 	for _, src := range paths {
 		_, filename := p.Split(src)
-		newPath := dest + "/" + filename
+		newPath := p.Join(dest, filename)
 
 		if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
 			os.Rename(src, newPath)

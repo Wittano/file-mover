@@ -77,7 +77,7 @@ func BenchmarkGetPathsFromRegex(b *testing.B) {
 
 	defer file.Close()
 
-	exp := dir + "/" + pattern
+	exp := p.Join(dir, pattern)
 
 	for i := 0; i < b.N; i++ {
 		paths, err := path.GetPathsFromPattern(exp)
