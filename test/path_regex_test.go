@@ -52,9 +52,8 @@ func TestGetPathsFromRegexRecursive(t *testing.T) {
 }
 
 func TestGetPathsFromRegexRecursiveButFunctionReturnNil(t *testing.T) {
-	exp, _ := createNestedTempDirWithFiles(t)
-	dir, _ := p.Split(exp)
-	dir = strings.Replace(dir, "test", "tset", 1)
+	expDir, _ := createNestedTempDirWithFiles(t)
+	dir := strings.Replace(expDir, "test", "tset", 1)
 
 	paths, err := path.GetPathFromPatternRecursive(dir)
 	if err != nil {
