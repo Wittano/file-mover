@@ -111,6 +111,11 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 func (w *MyWatcher) UpdateObservableFileList(flags config.FlagConfig) {
 	var wg sync.WaitGroup
 
+	conf, err := config.LoadConfig(flags.ConfigPath)
+	if err != nil {
+		log.Fatalf("Failed loaded configuration: %s", err)
+	}
+
 	for {
 		wg.Add(2)
 
@@ -118,11 +123,6 @@ func (w *MyWatcher) UpdateObservableFileList(flags config.FlagConfig) {
 
 		go w.removeUnnecessaryFiles(&wg)
 		go func(wg *sync.WaitGroup) {
-			conf, err := config.LoadConfig(flags.ConfigPath)
-			if err != nil {
-				log.Fatalf("Failed loaded configuration: %s", err)
-			}
-
 			w.AddFilesToObservable(conf)
 
 			wg.Done()

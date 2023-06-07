@@ -7,28 +7,20 @@ import (
 )
 
 func GetPathsFromPattern(src string) ([]string, error) {
-	path, pattern := p.Split(src)
-
-	reg, err := regexp.Compile("^\\*")
+	reg, err := getPathRegex(src)
 	if err != nil {
 		return nil, err
 	}
 
-	pattern = "^" + string(reg.ReplaceAll([]byte(pattern), []byte("\\w*"))) + "$"
+	dirPath, _ := p.Split(src)
 
-	reg, err = regexp.Compile(pattern)
-	if err != nil {
-		return nil, err
-	}
-
-	var files []os.DirEntry
-	if f, _ := os.Stat(path); f != nil && !f.IsDir() {
+	if f, _ := os.Stat(dirPath); f != nil && !f.IsDir() {
 		if reg.Match([]byte(f.Name())) {
 			return []string{f.Name()}, err
 		}
 	}
 
-	files, err = os.ReadDir(path)
+	files, err := os.ReadDir(dirPath)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +30,7 @@ func GetPathsFromPattern(src string) ([]string, error) {
 	size := uint(0)
 	for _, f := range files {
 		if !f.IsDir() && reg.Match([]byte(f.Name())) {
-			paths[size] = path + f.Name()
+			paths[size] = dirPath + f.Name()
 			size++
 		}
 	}
@@ -91,6 +83,19 @@ func GetPathFromPatternRecursive(path string) ([]string, error) {
 	}
 
 	return paths[0:size], nil
+}
+
+func getPathRegex(src string) (*regexp.Regexp, error) {
+	_, pattern := p.Split(src)
+
+	reg, err := regexp.Compile("^\\*")
+	if err != nil {
+		return nil, err
+	}
+
+	pattern = "^" + string(reg.ReplaceAll([]byte(pattern), []byte("\\w*"))) + "$"
+
+	return regexp.Compile(pattern)
 }
 
 func isFilePathIsRegex(reg string) bool {
