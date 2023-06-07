@@ -71,6 +71,32 @@ func TestAddFileToObservableRecursive(t *testing.T) {
 	}
 }
 
+func BenchmarkAddFilesToObservable(b *testing.B) {
+	tempDir := b.TempDir()
+	secondTempDir := b.TempDir()
+	tempFile, err := os.CreateTemp(tempDir, "test.mp4")
+	if err != nil {
+		b.Fatalf("Failed creating temp file: %s", err)
+	}
+	defer tempFile.Close()
+
+	conf := config.Config{Dirs: []config.Directory{
+		{
+			Src:       []string{tempFile.Name()},
+			Dest:      secondTempDir,
+			Recursive: false,
+		},
+	}}
+
+	w := watcher.NewWatcher()
+
+	for i := 0; i < b.N; i++ {
+		w.AddFilesToObservable(conf)
+	}
+
+	b.ReportAllocs()
+}
+
 func createTestConfiguration(t *testing.T) config.Config {
 	tempDir := t.TempDir()
 	secondTempDir := t.TempDir()

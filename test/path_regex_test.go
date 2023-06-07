@@ -76,14 +76,13 @@ func BenchmarkGetPathsFromRegex(b *testing.B) {
 
 	defer file.Close()
 
-	exp := p.Join(dir, pattern)
+	exp := file.Name()
 
 	for i := 0; i < b.N; i++ {
-		paths, err := path.GetPathsFromPattern(exp)
-		if err == nil && len(paths) != 1 {
-			b.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
-		}
+		path.GetPathsFromPattern(exp)
 	}
+
+	b.ReportAllocs()
 }
 
 func createTempDirWithFile(t *testing.T) string {
