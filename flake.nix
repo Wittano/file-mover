@@ -8,7 +8,7 @@
       file-mover = pkgs.callPackage ./nix { };
     in {
       defaultPackage.x86_64-linux = file-mover;
-      nixosModule.default = { config }:
+      nixosModules.default = { config }:
         import ./nix/service.nix {
           inherit config pkgs file-mover;
           lib = pkgs.lib;
