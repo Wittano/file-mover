@@ -79,7 +79,8 @@ func (w *MyWatcher) AddFilesToObservable(config config.Config) {
 			}
 
 			if err != nil {
-				log.Fatalf("Invalid path: %s", err)
+				log.Printf("Invalid path: %s", err)
+				continue
 			}
 
 			if paths != nil {
