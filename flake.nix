@@ -6,12 +6,8 @@
     let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
       file-mover = pkgs.callPackage ./nix { };
-    in {
+    in rec {
       defaultPackage.x86_64-linux = file-mover;
-      nixosModules.default = { config }:
-        import ./nix/service.nix {
-          inherit config pkgs file-mover;
-          lib = pkgs.lib;
-        };
+      nixosModules."file-mover" = import ./nix/service.nix;
     };
 }

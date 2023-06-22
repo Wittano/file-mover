@@ -1,19 +1,21 @@
-{ config, lib, pkgs, file-mover, ... }:
+{ config, lib, pkgs, ... }:
 
-let cfg = config.services.file-mover;
-in with lib; {
+let
+    cfg = config.services.file-mover;
+    program = pkgs.callPackage ./default.nix {};
+in {
   options = {
     services.file-mover = {
-      enable = mkEnableOption "Enable file-mover service";
-      user = mkOption {
-        type = types.str;
+      enable = lib.mkEnableOption "Enable file-mover service";
+      user = lib.mkOption {
+        type = lib.types.str;
         example = "wittano";
         description = ''
           Specific user, who will be run service
         '';
       };
-      configPath = mkOption {
-        type = types.str;
+      configPath = lib.mkOption {
+        type = lib.types.str;
         default = "$HOME/.config/file-mover/config.toml";
         example = "/home/wittano/config.toml";
         description = ''
@@ -23,8 +25,8 @@ in with lib; {
           Program accept only toml-formatted files
         '';
       };
-      updateInterval = kOption {
-        type = types.str;
+      updateInterval = lib.mkOption {
+        type = lib.types.str;
         default = "10m";
         example = "1h";
         description = ''
@@ -35,7 +37,7 @@ in with lib; {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     systemd.services.file-mover = {
       description = ''
         Service to automaticlly sorting files
@@ -43,7 +45,7 @@ in with lib; {
       serviceConfig.User = "${cfg.user}";
       wantedBy = [ "multi-user.target" ];
       script = ''
-        ${file-mover}/bin/file-mover -c ${cfg.configPath} -u ${cfg.updateInterval}
+        ${program}/bin/file-mover -c ${cfg.configPath} -u ${cfg.updateInterval}
       '';
     };
   };
