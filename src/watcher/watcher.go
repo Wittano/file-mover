@@ -116,10 +116,13 @@ func (w *MyWatcher) UpdateObservableFileList(flags config.FlagConfig) {
 		log.Fatalf("Failed loaded configuration: %s", err)
 	}
 
+	timer := time.NewTicker(flags.UpdateInterval)
+	defer timer.Stop()
+
 	for {
 		wg.Add(2)
 
-		time.Sleep(flags.UpdateInterval)
+		<-timer.C
 
 		go w.removeUnnecessaryFiles(&wg)
 		go func(wg *sync.WaitGroup) {

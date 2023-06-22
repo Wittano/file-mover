@@ -25,21 +25,19 @@ func GetPathsFromPattern(src string) ([]string, error) {
 		return nil, err
 	}
 
-	paths := make([]string, len(files))
+	paths := make([]string, 0, len(files))
 
-	size := uint(0)
 	for _, f := range files {
 		if !f.IsDir() && reg.Match([]byte(f.Name())) {
-			paths[size] = dirPath + f.Name()
-			size++
+			paths = append(paths, dirPath+f.Name())
 		}
 	}
 
-	if size == 0 {
+	if len(paths) == 0 {
 		return nil, nil
 	}
 
-	return paths[0:size], nil
+	return paths, nil
 }
 
 func GetPathFromPatternRecursive(path string) ([]string, error) {
