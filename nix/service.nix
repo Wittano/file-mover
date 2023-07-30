@@ -1,11 +1,11 @@
 { config, lib, pkgs, ... }:
 
 let
-    cfg = config.services.file-mover;
+    cfg = config.services.filebot;
     program = pkgs.callPackage ./default.nix {};
 in {
   options = {
-    services.file-mover = {
+    services.filebot = {
       enable = lib.mkEnableOption "Enable filebot service";
       user = lib.mkOption {
         type = lib.types.str;

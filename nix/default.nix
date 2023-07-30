@@ -1,7 +1,7 @@
 { buildGoModule }:
 
 buildGoModule rec {
-  name = "file-mover";
+  name = "filebot";
   src = ./../.;
 
   vendorHash = "sha256-YVbhTJ1gwwpWhxgUHQlp+udSx3sLtMlr1TiZWsIeORA";
