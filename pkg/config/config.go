@@ -4,9 +4,16 @@ import (
 	"golang.org/x/exp/maps"
 	"log"
 	"os"
+	"path"
+	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
+
+type Flags struct {
+	ConfigPath     string
+	UpdateInterval time.Duration
+}
 
 type Config struct {
 	Dirs []Directory
@@ -18,20 +25,34 @@ type Directory struct {
 	Recursive bool
 }
 
-func LoadConfig(path string) (Config, error) {
+var config *Config
+
+func GetDefaultConfigPath() string {
+	return path.Join(os.Getenv("HOME"), ".config", "file_mover", "config.toml")
+}
+
+func Get(path string) (*Config, error) {
+	if config != nil {
+		return config, nil
+	}
+
+	return Load(path)
+}
+
+func Load(path string) (*Config, error) {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		log.Printf("Failed loaded configuration from path %s causes: %s", path, err)
-		return Config{}, err
+		return nil, err
 	}
 
 	var unmarshal map[string]Directory
 	if err := toml.Unmarshal(bytes, &unmarshal); err != nil {
 		log.Printf("Failed unmarshal configuration causes: %s", err)
-		return Config{}, err
+		return nil, err
 	}
 
-	var config Config
+	config = new(Config)
 	config.Dirs = maps.Values(unmarshal)
 
 	return config, nil

@@ -3,8 +3,8 @@ package watcher
 import (
 	"errors"
 	"github.com/fsnotify/fsnotify"
-	"github.com/wittano/file-mover/src/config"
-	"github.com/wittano/file-mover/src/path"
+	"github.com/wittano/file-mover/pkg/config"
+	"github.com/wittano/file-mover/pkg/path"
 	"log"
 	"os"
 	p "path"
@@ -66,7 +66,7 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w *MyWatcher) AddFilesToObservable(config config.Config) {
+func (w *MyWatcher) AddFilesToObservable(config *config.Config) {
 	for _, dir := range config.Dirs {
 		for _, src := range dir.Src {
 			var paths []string
@@ -109,10 +109,10 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	}
 }
 
-func (w *MyWatcher) UpdateObservableFileList(flags config.FlagConfig) {
+func (w *MyWatcher) UpdateObservableFileList(flags config.Flags) {
 	var wg sync.WaitGroup
 
-	conf, err := config.LoadConfig(flags.ConfigPath)
+	conf, err := config.Get(flags.ConfigPath)
 	if err != nil {
 		log.Fatalf("Failed loaded configuration: %s", err)
 	}

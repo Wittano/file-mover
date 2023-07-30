@@ -6,7 +6,7 @@ let
 in {
   options = {
     services.file-mover = {
-      enable = lib.mkEnableOption "Enable file-mover service";
+      enable = lib.mkEnableOption "Enable file_mover service";
       user = lib.mkOption {
         type = lib.types.str;
         example = "wittano";
@@ -16,7 +16,7 @@ in {
       };
       configPath = lib.mkOption {
         type = lib.types.str;
-        default = "$HOME/.config/file-mover/config.toml";
+        default = "$HOME/.config/file_mover/config.toml";
         example = "/home/wittano/config.toml";
         description = ''
           Path to program configuration.
@@ -45,7 +45,7 @@ in {
       serviceConfig.User = "${cfg.user}";
       wantedBy = [ "multi-user.target" ];
       script = ''
-        ${program}/bin/file-mover -c ${cfg.configPath} -u ${cfg.updateInterval}
+        ${program}/bin/file_mover -c ${cfg.configPath} -u ${cfg.updateInterval}
       '';
     };
   };

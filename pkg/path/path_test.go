@@ -1,7 +1,6 @@
-package test
+package path
 
 import (
-	"github.com/wittano/file-mover/src/path"
 	"os"
 	p "path"
 	"strings"
@@ -11,7 +10,7 @@ import (
 func TestGetPathsFromRegex(t *testing.T) {
 	exp := createTempDirWithFile(t)
 
-	paths, err := path.GetPathsFromPattern(exp)
+	paths, err := GetPathsFromPattern(exp)
 	if err == nil && len(paths) != 1 && paths[0] == exp {
 		t.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
 	}
@@ -21,7 +20,7 @@ func TestGetPathsFromRegexButRegexStartFromStar(t *testing.T) {
 	p := createTempDirWithFile(t)
 	exp := strings.Replace(p, "test", "*est", 1)
 
-	paths, err := path.GetPathsFromPattern(exp)
+	paths, err := GetPathsFromPattern(exp)
 	if err == nil && len(paths) != 1 && paths[0] == exp {
 		t.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
 	}
@@ -31,7 +30,7 @@ func TestGetPathsFromRegexButFunctionReturnNil(t *testing.T) {
 	p := createTempDirWithFile(t)
 	exp := strings.Replace(p, "test", "tset", 1)
 
-	paths, err := path.GetPathsFromPattern(exp)
+	paths, err := GetPathsFromPattern(exp)
 	if err != nil || paths != nil || len(paths) != 0 {
 		t.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
 	}
@@ -41,7 +40,7 @@ func TestGetPathsFromRegexRecursive(t *testing.T) {
 	exp, expFilename := createNestedTempDirWithFiles(t)
 	dir, _ := p.Split(exp)
 
-	paths, err := path.GetPathFromPatternRecursive(dir + "*.mp4")
+	paths, err := GetPathFromPatternRecursive(dir + "*.mp4")
 	if err != nil || len(paths) != 1 {
 		t.Fatalf("Failed got paths. Expected 1, acually %d. Error: %s", len(paths), err)
 	}
@@ -55,7 +54,7 @@ func TestGetPathsFromRegexRecursiveButFunctionReturnNil(t *testing.T) {
 	expDir, _ := createNestedTempDirWithFiles(t)
 	dir := strings.Replace(expDir, "test", "tset", 1)
 
-	paths, err := path.GetPathFromPatternRecursive(dir)
+	paths, err := GetPathFromPatternRecursive(dir)
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -79,7 +78,7 @@ func BenchmarkGetPathsFromRegex(b *testing.B) {
 	exp := file.Name()
 
 	for i := 0; i < b.N; i++ {
-		path.GetPathsFromPattern(exp)
+		GetPathsFromPattern(exp)
 	}
 
 	b.ReportAllocs()

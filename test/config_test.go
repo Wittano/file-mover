@@ -1,13 +1,12 @@
 package test
 
 import (
+	"github.com/wittano/file-mover/pkg/config"
 	"testing"
-
-	"github.com/wittano/file-mover/src/config"
 )
 
 func TestLoadConfig(t *testing.T) {
-	conf, err := config.LoadConfig("./test_config.toml")
+	conf, err := config.Load("./testdata/config.toml")
 	if err != nil {
 		t.Fatalf("Failed load conf causes %s", err)
 	}
@@ -27,7 +26,7 @@ func TestLoadConfig(t *testing.T) {
 }
 
 func TestFailedLoadingConfig(t *testing.T) {
-	_, err := config.LoadConfig("/invalid/path")
+	_, err := config.Load("/invalid/path")
 	if err == nil {
 		t.Fatal("Loaded config file from invalid path")
 	}

@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/wittano/file-mover/src/config"
-	"github.com/wittano/file-mover/src/watcher"
+	"github.com/wittano/file-mover/pkg/config"
+	"github.com/wittano/file-mover/pkg/watcher"
 	"log"
 )
 
 func main() {
-	flags := config.ParseFlags()
+	flags := parseFlags()
 
-	conf, err := config.LoadConfig(flags.ConfigPath)
+	conf, err := config.Load(flags.ConfigPath)
 	if err != nil {
 		log.Fatalf("Failed loaded configuration: %s", err)
 	}
