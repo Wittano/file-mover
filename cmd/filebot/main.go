@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/wittano/file-mover/pkg/config"
-	"github.com/wittano/file-mover/pkg/watcher"
+	"github.com/wittano/fmanager/pkg/config"
+	"github.com/wittano/fmanager/pkg/watcher"
 	"log"
 )
 

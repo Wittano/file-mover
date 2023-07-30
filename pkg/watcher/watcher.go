@@ -3,8 +3,8 @@ package watcher
 import (
 	"errors"
 	"github.com/fsnotify/fsnotify"
-	"github.com/wittano/file-mover/pkg/config"
-	"github.com/wittano/file-mover/pkg/path"
+	"github.com/wittano/fmanager/pkg/config"
+	"github.com/wittano/fmanager/pkg/path"
 	"log"
 	"os"
 	p "path"

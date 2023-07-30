@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/wittano/file-mover/pkg/config"
+	"github.com/wittano/fmanager/pkg/config"
 	"testing"
 )
 

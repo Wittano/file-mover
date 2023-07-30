@@ -1,4 +1,4 @@
-module github.com/wittano/file-mover
+module github.com/wittano/fmanager
 
 go 1.20
 

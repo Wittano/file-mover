@@ -6,7 +6,7 @@ let
 in {
   options = {
     services.file-mover = {
-      enable = lib.mkEnableOption "Enable file_mover service";
+      enable = lib.mkEnableOption "Enable filebot service";
       user = lib.mkOption {
         type = lib.types.str;
         example = "wittano";
@@ -16,7 +16,7 @@ in {
       };
       configPath = lib.mkOption {
         type = lib.types.str;
-        default = "$HOME/.config/file_mover/config.toml";
+        default = "$HOME/.config/filebot/config.toml";
         example = "/home/wittano/config.toml";
         description = ''
           Path to program configuration.
@@ -38,14 +38,14 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    systemd.services.file-mover = {
+    systemd.services.filebot = {
       description = ''
         Service to automaticlly sorting files
       '';
       serviceConfig.User = "${cfg.user}";
       wantedBy = [ "multi-user.target" ];
       script = ''
-        ${program}/bin/file_mover -c ${cfg.configPath} -u ${cfg.updateInterval}
+        ${program}/bin/filebot -c ${cfg.configPath} -u ${cfg.updateInterval}
       '';
     };
   };

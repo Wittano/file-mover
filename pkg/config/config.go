@@ -28,7 +28,7 @@ type Directory struct {
 var config *Config
 
 func GetDefaultConfigPath() string {
-	return path.Join(os.Getenv("HOME"), ".config", "file_mover", "config.toml")
+	return path.Join(os.Getenv("HOME"), ".config", "filebot", "config.toml")
 }
 
 func Get(path string) (*Config, error) {

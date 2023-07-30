@@ -2,7 +2,7 @@ package watcher
 
 import (
 	"errors"
-	"github.com/wittano/file-mover/pkg/config"
+	"github.com/wittano/fmanager/pkg/config"
 	"os"
 	"testing"
 	"time"

@@ -8,6 +8,6 @@
       file-mover = pkgs.callPackage ./nix { };
     in rec {
       defaultPackage.x86_64-linux = file-mover;
-      nixosModules."file_mover" = import ./nix/service.nix;
+      nixosModules."filebot" = import ./nix/service.nix;
     };
 }
