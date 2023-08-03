@@ -1,10 +1,11 @@
 package config
 
 import (
+	"github.com/mitchellh/go-homedir"
 	"golang.org/x/exp/maps"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
@@ -28,7 +29,12 @@ type Directory struct {
 var config *Config
 
 func GetDefaultConfigPath() string {
-	return path.Join(os.Getenv("HOME"), ".config", "filebot", "config.toml")
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		panic(err)
+	}
+
+	return filepath.Join(homeDir, ".config", "filebot", "config.toml")
 }
 
 func Get(path string) (*Config, error) {
