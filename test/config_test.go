@@ -2,11 +2,12 @@ package test
 
 import (
 	"github.com/wittano/fmanager/pkg/config"
+	"path/filepath"
 	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-	conf, err := config.Load("./testdata/config.toml")
+	conf, err := config.Load(filepath.Join(".", "testdata", "config.toml"))
 	if err != nil {
 		t.Fatalf("Failed load conf causes %s", err)
 	}

@@ -2,7 +2,7 @@ package path
 
 import (
 	"os"
-	p "path"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -37,10 +37,10 @@ func TestGetPathsFromRegexButFunctionReturnNil(t *testing.T) {
 }
 
 func TestGetPathsFromRegexRecursive(t *testing.T) {
-	exp, expFilename := createNestedTempDirWithFiles(t)
-	dir, _ := p.Split(exp)
+	_, expFilename := createNestedTempDirWithFiles(t, "test.mp4")
+	dir := filepath.Dir(expFilename)
 
-	paths, err := GetPathFromPatternRecursive(dir + "*.mp4")
+	paths, err := GetPathFromPatternRecursive(dir + "*.mp4*")
 	if err != nil || len(paths) != 1 {
 		t.Fatalf("Failed got paths. Expected 1, acually %d. Error: %s", len(paths), err)
 	}
@@ -51,7 +51,7 @@ func TestGetPathsFromRegexRecursive(t *testing.T) {
 }
 
 func TestGetPathsFromRegexRecursiveButFunctionReturnNil(t *testing.T) {
-	expDir, _ := createNestedTempDirWithFiles(t)
+	expDir, _ := createNestedTempDirWithFiles(t, "test")
 	dir := strings.Replace(expDir, "test", "tset", 1)
 
 	paths, err := GetPathFromPatternRecursive(dir)
@@ -94,13 +94,13 @@ func createTempDirWithFile(t *testing.T) string {
 	return file.Name()
 }
 
-func createNestedTempDirWithFiles(t *testing.T) (string, string) {
+func createNestedTempDirWithFiles(t *testing.T, filename string) (string, string) {
 	dir := t.TempDir()
 	nestedDir := dir + "test"
 
 	os.Mkdir(nestedDir, 0777)
 
-	file, err := os.CreateTemp(nestedDir, "test")
+	file, err := os.CreateTemp(nestedDir, filename)
 	if err != nil {
 		t.Fatalf("Failed created temp file. %s", err)
 	}
@@ -110,7 +110,7 @@ func createNestedTempDirWithFiles(t *testing.T) (string, string) {
 }
 
 func getFilename(path string) string {
-	_, filename := p.Split(path)
+	_, filename := filepath.Split(path)
 
 	return filename
 }

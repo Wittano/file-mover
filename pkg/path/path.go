@@ -2,7 +2,7 @@ package path
 
 import (
 	"os"
-	p "path"
+	"path/filepath"
 	"regexp"
 )
 
@@ -12,7 +12,7 @@ func GetPathsFromPattern(src string) ([]string, error) {
 		return nil, err
 	}
 
-	dirPath, _ := p.Split(src)
+	dirPath, _ := filepath.Split(src)
 
 	if f, _ := os.Stat(dirPath); f != nil && !f.IsDir() {
 		if reg.Match([]byte(f.Name())) {
@@ -41,7 +41,7 @@ func GetPathsFromPattern(src string) ([]string, error) {
 }
 
 func GetPathFromPatternRecursive(path string) ([]string, error) {
-	dir, pattern := p.Split(path)
+	dir, pattern := filepath.Split(path)
 	if !isFilePathIsRegex(pattern) {
 		dir = path
 	}
@@ -64,7 +64,7 @@ func GetPathFromPatternRecursive(path string) ([]string, error) {
 			paths = append(paths[0:size], recPath...)
 			size = uint(len(paths))
 		} else {
-			path, err := GetPathsFromPattern(p.Join(dir, f.Name()))
+			path, err := GetPathsFromPattern(filepath.Join(dir, f.Name()))
 			if err != nil {
 				return nil, err
 			}
@@ -84,7 +84,7 @@ func GetPathFromPatternRecursive(path string) ([]string, error) {
 }
 
 func getPathRegex(src string) (*regexp.Regexp, error) {
-	_, pattern := p.Split(src)
+	_, pattern := filepath.Split(src)
 
 	reg, err := regexp.Compile("^\\*")
 	if err != nil {

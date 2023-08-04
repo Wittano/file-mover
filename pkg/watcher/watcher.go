@@ -7,7 +7,7 @@ import (
 	"github.com/wittano/fmanager/pkg/path"
 	"log"
 	"os"
-	p "path"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -69,8 +69,10 @@ func (w MyWatcher) WaitForEvents() {
 func (w *MyWatcher) AddFilesToObservable(config *config.Config) {
 	for _, dir := range config.Dirs {
 		for _, src := range dir.Src {
-			var paths []string
-			var err error
+			var (
+				err   error
+				paths []string
+			)
 
 			if dir.Recursive {
 				paths, err = path.GetPathFromPatternRecursive(src)
@@ -94,17 +96,17 @@ func (w *MyWatcher) AddFilesToObservable(config *config.Config) {
 }
 
 func (w *MyWatcher) fillFileObservedMap(src []string, dest string) {
-	for _, path := range src {
+	for _, p := range src {
 		mutex.Lock()
-		w.fileObserved[path] = dest
+		w.fileObserved[p] = dest
 		mutex.Unlock()
 	}
 }
 
 func (w *MyWatcher) addFilesToObservable(paths ...string) {
-	for _, path := range paths {
-		if err := w.Add(path); err != nil {
-			log.Printf("Cannot add %s file/directory to tracing list: %s", path, err)
+	for _, p := range paths {
+		if err := w.Add(p); err != nil {
+			log.Printf("Cannot add %s file/directory to tracing list: %s", p, err)
 		}
 	}
 }
@@ -148,16 +150,21 @@ func (w *MyWatcher) removeUnnecessaryFiles(wg *sync.WaitGroup) {
 
 func moveFileToDestination(dest string, paths ...string) {
 	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
-		log.Printf("Destination directory %s not exist", dest)
+		log.Printf("Destination directory %s doesn't exist", dest)
 		return
 	}
 
 	for _, src := range paths {
-		_, filename := p.Split(src)
-		newPath := p.Join(dest, filename)
+		_, filename := filepath.Split(src)
+		newPath := filepath.Join(dest, filename)
 
 		if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
-			os.Rename(src, newPath)
+			err := os.Rename(src, newPath)
+			if err != nil {
+				log.Printf("Failed to move file from %s to %s. %s", src, newPath, err)
+				return
+			}
+
 			log.Printf("Moved file from %s to %s", src, dest)
 		}
 	}
