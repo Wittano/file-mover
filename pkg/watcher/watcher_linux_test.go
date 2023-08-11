@@ -4,7 +4,7 @@ package watcher
 
 import (
 	"errors"
-	"github.com/wittano/fmanager/pkg/config"
+	"github.com/wittano/filebot/pkg/config"
 	"os"
 	"testing"
 	"time"

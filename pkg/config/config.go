@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/mitchellh/go-homedir"
 	"golang.org/x/exp/maps"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -37,6 +36,11 @@ func GetDefaultConfigPath() string {
 	return filepath.Join(homeDir, ".config", "filebot", "config.toml")
 }
 
+func GetDefaultUpdateInterval() time.Duration {
+	duration, _ := time.ParseDuration("10m")
+	return duration
+}
+
 func Get(path string) (*Config, error) {
 	if config != nil {
 		return config, nil
@@ -48,13 +52,11 @@ func Get(path string) (*Config, error) {
 func Load(path string) (*Config, error) {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
-		log.Printf("Failed loaded configuration from path %s causes: %s", path, err)
 		return nil, err
 	}
 
 	var unmarshal map[string]Directory
 	if err := toml.Unmarshal(bytes, &unmarshal); err != nil {
-		log.Printf("Failed unmarshal configuration causes: %s", err)
 		return nil, err
 	}
 

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/wittano/fmanager/pkg/config"
+	"github.com/wittano/filebot/pkg/config"
 	"path/filepath"
 	"testing"
 )

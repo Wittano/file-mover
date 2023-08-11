@@ -3,7 +3,7 @@
 package watcher
 
 import (
-	"github.com/wittano/fmanager/pkg/config"
+	"github.com/wittano/filebot/pkg/config"
 	"os"
 	"path/filepath"
 	"testing"
