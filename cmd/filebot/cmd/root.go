@@ -1,14 +1,18 @@
 package cmd
 
 import (
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/wittano/filebot/pkg/config"
+	"github.com/wittano/filebot/pkg/cron"
 	"github.com/wittano/filebot/pkg/watcher"
 	"log"
+	"path/filepath"
+	"time"
 )
 
 var (
-	flags   config.Flags
+	Flags   config.Flags
 	rootCmd = &cobra.Command{
 		Use:   "filebot",
 		Short: "Automatically manager your files",
@@ -18,12 +22,12 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&flags.ConfigPath, "config", "c", config.GetDefaultConfigPath(), "Specific path for filebot configuration")
-	rootCmd.PersistentFlags().DurationVarP(&flags.UpdateInterval, "updateInterval", "u", config.GetDefaultUpdateInterval(), "Set time after filebot should be refresh watched file state")
+	rootCmd.PersistentFlags().StringVarP(&Flags.ConfigPath, "config", "c", getDefaultConfigPath(), "Specific path for filebot configuration")
+	rootCmd.PersistentFlags().DurationVarP(&Flags.UpdateInterval, "updateInterval", "u", getDefaultUpdateInterval(), "Set time after filebot should be refresh watched file state")
 }
 
 func runMainCommand(_ *cobra.Command, _ []string) {
-	conf, err := config.Get(flags.ConfigPath)
+	conf, err := config.Get(Flags.ConfigPath)
 	if err != nil {
 		log.Fatalf("Failed loaded configuration: %s", err)
 	}
@@ -31,10 +35,27 @@ func runMainCommand(_ *cobra.Command, _ []string) {
 	w := watcher.NewWatcher()
 	w.AddFilesToObservable(conf)
 
-	go w.UpdateObservableFileList(flags)
+	s := cron.NewScheduler()
+	s.StartAsync()
+
+	go w.UpdateObservableFileList(Flags)
 	go w.ObserveFiles()
 
 	w.WaitForEvents()
+}
+
+func getDefaultConfigPath() string {
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		panic(err)
+	}
+
+	return filepath.Join(homeDir, ".config", "filebot", "config.toml")
+}
+
+func getDefaultUpdateInterval() time.Duration {
+	duration, _ := time.ParseDuration("10m")
+	return duration
 }
 
 func Execute() {

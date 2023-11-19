@@ -1,10 +1,8 @@
 package config
 
 import (
-	"github.com/mitchellh/go-homedir"
 	"golang.org/x/exp/maps"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
@@ -20,36 +18,24 @@ type Config struct {
 }
 
 type Directory struct {
-	Src       []string
-	Dest      string
-	Recursive bool
+	Src         []string
+	Dest        string
+	Recursive   bool
+	MoveToTrash bool
+	After       uint
 }
 
 var config *Config
-
-func GetDefaultConfigPath() string {
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		panic(err)
-	}
-
-	return filepath.Join(homeDir, ".config", "filebot", "config.toml")
-}
-
-func GetDefaultUpdateInterval() time.Duration {
-	duration, _ := time.ParseDuration("10m")
-	return duration
-}
 
 func Get(path string) (*Config, error) {
 	if config != nil {
 		return config, nil
 	}
 
-	return Load(path)
+	return load(path)
 }
 
-func Load(path string) (*Config, error) {
+func load(path string) (*Config, error) {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err

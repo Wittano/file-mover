@@ -1,13 +1,12 @@
-package test
+package config
 
 import (
-	"github.com/wittano/filebot/pkg/config"
-	"path/filepath"
+	"github.com/wittano/filebot/internal/test"
 	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-	conf, err := config.Load(filepath.Join(".", "testdata", "config.toml"))
+	conf, err := load(test.LoadTestData("config.toml"))
 	if err != nil {
 		t.Fatalf("Failed load conf causes %s", err)
 	}
@@ -27,7 +26,7 @@ func TestLoadConfig(t *testing.T) {
 }
 
 func TestFailedLoadingConfig(t *testing.T) {
-	_, err := config.Load("/invalid/path")
+	_, err := load("/invalid/path")
 	if err == nil {
 		t.Fatal("Loaded config file from invalid path")
 	}

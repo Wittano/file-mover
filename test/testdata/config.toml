@@ -6,3 +6,8 @@ recursive = true
 [Music]
 src = [ "/tmp/test2/*.mp4" ]
 dest = "/tmp"
+
+[MoveToTrash]
+src = [ "/tmp/test3" ]
+moveToTrash = true
+after = 32
