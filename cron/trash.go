@@ -2,9 +2,8 @@ package cron
 
 import (
 	"fmt"
-	"github.com/wittano/filebot/cmd/filebot/cmd"
-	"github.com/wittano/filebot/pkg/config"
-	"github.com/wittano/filebot/pkg/file"
+	"github.com/wittano/filebot/file"
+	"github.com/wittano/filebot/setting"
 	"log"
 	"os"
 	"path/filepath"
@@ -14,11 +13,7 @@ import (
 var TrashPath = filepath.Join(os.Getenv("HOME"), ".locale", "share", "Trash", "files")
 
 func moveToTrashTask() {
-	c, err := config.Get(cmd.Flags.ConfigPath)
-	if err != nil {
-		log.Println("Failed to get config. " + err.Error())
-		return
-	}
+	c := setting.Flags.GetConfig()
 
 	for _, dir := range c.Dirs {
 		if dir.MoveToTrash {
@@ -27,10 +22,10 @@ func moveToTrashTask() {
 	}
 }
 
-func moveFileToTrash(dir config.Directory) {
-	for _, path := range dir.Src {
-		if isAfterDateOfRemovingFile(path, dir.After) {
-			go file.MoveFilesToDestination(TrashPath, path)
+func moveFileToTrash(dir setting.Directory) {
+	for _, paths := range dir.Src {
+		if isAfterDateOfRemovingFile(paths, dir.After) {
+			go file.MoveToDestination(TrashPath, paths)
 		}
 	}
 }

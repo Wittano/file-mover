@@ -4,7 +4,7 @@ package watcher
 
 import (
 	"errors"
-	"github.com/wittano/filebot/pkg/config"
+	"github.com/wittano/filebot/setting"
 	"os"
 	"testing"
 	"time"
@@ -81,7 +81,7 @@ func BenchmarkAddFilesToObservable(b *testing.B) {
 	}
 	defer tempFile.Close()
 
-	conf := &config.Config{Dirs: []config.Directory{
+	conf := &setting.Config{Dirs: []setting.Directory{
 		{
 			Src:       []string{tempFile.Name()},
 			Dest:      secondTempDir,
@@ -98,7 +98,7 @@ func BenchmarkAddFilesToObservable(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func createTestConfiguration(t *testing.T) *config.Config {
+func createTestConfiguration(t *testing.T) *setting.Config {
 	tempDir := t.TempDir()
 	secondTempDir := t.TempDir()
 	tempFile, err := os.CreateTemp(tempDir, "test.mp4")
@@ -107,7 +107,7 @@ func createTestConfiguration(t *testing.T) *config.Config {
 	}
 	defer tempFile.Close()
 
-	return &config.Config{Dirs: []config.Directory{
+	return &setting.Config{Dirs: []setting.Directory{
 		{
 			Src:       []string{tempFile.Name()},
 			Dest:      secondTempDir,
@@ -116,7 +116,7 @@ func createTestConfiguration(t *testing.T) *config.Config {
 	}}
 }
 
-func createTestConfigurationWithRecursive(t *testing.T) *config.Config {
+func createTestConfigurationWithRecursive(t *testing.T) *setting.Config {
 	tempDir := t.TempDir()
 	secondTempDir := tempDir + "/test"
 
@@ -128,7 +128,7 @@ func createTestConfigurationWithRecursive(t *testing.T) *config.Config {
 	}
 	defer tempFile.Close()
 
-	return &config.Config{Dirs: []config.Directory{
+	return &setting.Config{Dirs: []setting.Directory{
 		{
 			Src:       []string{tempFile.Name()},
 			Dest:      tempDir,

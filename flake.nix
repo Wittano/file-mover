@@ -5,9 +5,9 @@
   outputs = { self, nixpkgs, }:
     let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
-      filebot = pkgs.callPackage ./nix { };
+      filebot = pkgs.callPackage ./default { };
     in {
-      defaultPackage.x86_64-linux = filebot;
-      nixosModules."filebot" = import ./nix/service.nix;
+      packages.x86_64-linux.default = filebot;
+      nixosModules."filebot" = import ./service.nix;
     };
 }

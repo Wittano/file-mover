@@ -3,10 +3,10 @@ package watcher
 import (
 	"errors"
 	"github.com/fsnotify/fsnotify"
-	"github.com/wittano/filebot/pkg/config"
-	"github.com/wittano/filebot/pkg/cron"
-	"github.com/wittano/filebot/pkg/file"
-	"github.com/wittano/filebot/pkg/path"
+	"github.com/wittano/filebot/cron"
+	"github.com/wittano/filebot/file"
+	"github.com/wittano/filebot/path"
+	"github.com/wittano/filebot/setting"
 	"log"
 	"os"
 	"sync"
@@ -47,7 +47,7 @@ func (w *MyWatcher) ObserveFiles() {
 
 			if e.Has(fsnotify.Create) || e.Has(fsnotify.Rename) {
 				if dir, ok := w.fileObserved[e.Name]; ok {
-					file.MoveFilesToDestination(dir, e.Name)
+					file.MoveToDestination(dir, e.Name)
 				}
 			}
 		case err, ok := <-w.Errors:
@@ -67,7 +67,7 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w *MyWatcher) AddFilesToObservable(config *config.Config) {
+func (w *MyWatcher) AddFilesToObservable(config *setting.Config) {
 	for _, dir := range config.Dirs {
 		for _, src := range dir.Src {
 			var (
@@ -95,7 +95,7 @@ func (w *MyWatcher) AddFilesToObservable(config *config.Config) {
 				go w.fillFileObservedMap(paths, destPath)
 
 				w.addFilesToObservable(paths...)
-				go file.MoveFilesToDestination(destPath, paths...)
+				go file.MoveToDestination(destPath, paths...)
 			}
 		}
 	}
@@ -117,15 +117,12 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	}
 }
 
-func (w *MyWatcher) UpdateObservableFileList(flags config.Flags) {
+func (w *MyWatcher) UpdateObservableFileList() {
 	var wg sync.WaitGroup
 
-	conf, err := config.Get(flags.ConfigPath)
-	if err != nil {
-		log.Fatalf("Failed loaded configuration: %s", err)
-	}
+	conf := setting.Flags.GetConfig()
 
-	timer := time.NewTicker(flags.UpdateInterval)
+	timer := time.NewTicker(setting.Flags.UpdateInterval)
 	defer timer.Stop()
 
 	for {

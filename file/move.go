@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func MoveFilesToDestination(dest string, paths ...string) {
+func MoveToDestination(dest string, paths ...string) {
 	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
 		log.Printf("Destination directory %s doesn't exist", dest)
 		return

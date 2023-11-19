@@ -6,5 +6,8 @@ build:
 test: build
 	go test ./...
 
+clean:
+	rm -r build
+
 build-nix:
 	nix build .

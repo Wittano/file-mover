@@ -45,7 +45,7 @@ func TestGetPathsFromRegexRecursive(t *testing.T) {
 		t.Fatalf("Failed got paths. Expected 1, acually %d. Error: %s", len(paths), err)
 	}
 
-	if expFilename == getFilename(paths[0]) {
+	if expFilename == filepath.Base(paths[0]) {
 		t.Fatalf("Expected file not found")
 	}
 }
@@ -107,10 +107,4 @@ func createNestedTempDirWithFiles(t *testing.T, filename string) (string, string
 	defer file.Close()
 
 	return nestedDir, file.Name()
-}
-
-func getFilename(path string) string {
-	_, filename := filepath.Split(path)
-
-	return filename
 }

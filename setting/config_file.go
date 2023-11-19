@@ -1,17 +1,10 @@
-package config
+package setting
 
 import (
+	"github.com/pelletier/go-toml/v2"
 	"golang.org/x/exp/maps"
 	"os"
-	"time"
-
-	"github.com/pelletier/go-toml/v2"
 )
-
-type Flags struct {
-	ConfigPath     string
-	UpdateInterval time.Duration
-}
 
 type Config struct {
 	Dirs []Directory
@@ -26,14 +19,6 @@ type Directory struct {
 }
 
 var config *Config
-
-func Get(path string) (*Config, error) {
-	if config != nil {
-		return config, nil
-	}
-
-	return load(path)
-}
 
 func load(path string) (*Config, error) {
 	bytes, err := os.ReadFile(path)
@@ -50,4 +35,12 @@ func load(path string) (*Config, error) {
 	config.Dirs = maps.Values(unmarshal)
 
 	return config, nil
+}
+
+func GetConfig(path string) (*Config, error) {
+	if config != nil {
+		return config, nil
+	}
+
+	return load(path)
 }

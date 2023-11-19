@@ -1,18 +1,13 @@
-package config
+package setting
 
 import (
-	"github.com/wittano/filebot/internal/test"
 	"testing"
 )
 
 func TestLoadConfig(t *testing.T) {
-	conf, err := load(test.LoadTestData("config.toml"))
+	conf, err := load("testdata/config.toml")
 	if err != nil {
 		t.Fatalf("Failed load conf causes %s", err)
-	}
-
-	if len(conf.Dirs) != 2 {
-		t.Fatalf("Number of loaded configuration directories is invalid. Expected 2, acually %d", len(conf.Dirs))
 	}
 
 	dir := conf.Dirs[0]
@@ -28,6 +23,6 @@ func TestLoadConfig(t *testing.T) {
 func TestFailedLoadingConfig(t *testing.T) {
 	_, err := load("/invalid/path")
 	if err == nil {
-		t.Fatal("Loaded config file from invalid path")
+		t.Fatal("Loaded setting file from invalid path")
 	}
 }

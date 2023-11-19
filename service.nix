@@ -16,8 +16,8 @@ in {
       };
       configPath = lib.mkOption {
         type = lib.types.str;
-        default = "$HOME/.config/filebot/config.toml";
-        example = "/home/wittano/config.toml";
+        default = "$HOME/.setting/filebot/setting.toml";
+        example = "/home/wittano/setting.toml";
         description = ''
           Path to program configuration.
 
