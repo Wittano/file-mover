@@ -1,6 +1,7 @@
 package path
 
 import (
+	"github.com/wittano/filebot/internal/test"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,7 +9,7 @@ import (
 )
 
 func TestGetPathsFromRegex(t *testing.T) {
-	exp := createTempDirWithFile(t)
+	exp := test.CreateTempFile(t)
 
 	paths, err := GetPathsFromPattern(exp)
 	if err == nil && len(paths) != 1 && paths[0] == exp {
@@ -17,7 +18,7 @@ func TestGetPathsFromRegex(t *testing.T) {
 }
 
 func TestGetPathsFromRegexButRegexStartFromStar(t *testing.T) {
-	p := createTempDirWithFile(t)
+	p := test.CreateTempFile(t)
 	exp := strings.Replace(p, "test", "*est", 1)
 
 	paths, err := GetPathsFromPattern(exp)
@@ -27,7 +28,7 @@ func TestGetPathsFromRegexButRegexStartFromStar(t *testing.T) {
 }
 
 func TestGetPathsFromRegexButFunctionReturnNil(t *testing.T) {
-	p := createTempDirWithFile(t)
+	p := test.CreateTempFile(t)
 	exp := strings.Replace(p, "test", "tset", 1)
 
 	paths, err := GetPathsFromPattern(exp)
@@ -37,7 +38,7 @@ func TestGetPathsFromRegexButFunctionReturnNil(t *testing.T) {
 }
 
 func TestGetPathsFromRegexRecursive(t *testing.T) {
-	_, expFilename := createNestedTempDirWithFiles(t, "test.mp4")
+	_, expFilename := test.CreateNestedTempDirWithFiles(t, "test.mp4")
 	dir := filepath.Dir(expFilename)
 
 	paths, err := GetPathFromPatternRecursive(dir + "*.mp4*")
@@ -51,7 +52,7 @@ func TestGetPathsFromRegexRecursive(t *testing.T) {
 }
 
 func TestGetPathsFromRegexRecursiveButFunctionReturnNil(t *testing.T) {
-	expDir, _ := createNestedTempDirWithFiles(t, "test")
+	expDir, _ := test.CreateNestedTempDirWithFiles(t, "test")
 	dir := strings.Replace(expDir, "test", "tset", 1)
 
 	paths, err := GetPathFromPatternRecursive(dir)
@@ -82,29 +83,4 @@ func BenchmarkGetPathsFromRegex(b *testing.B) {
 	}
 
 	b.ReportAllocs()
-}
-
-func createTempDirWithFile(t *testing.T) string {
-	file, err := os.CreateTemp(t.TempDir(), "test")
-	if err != nil {
-		t.Fatalf("Failed created temp file. %s", err)
-	}
-	defer file.Close()
-
-	return file.Name()
-}
-
-func createNestedTempDirWithFiles(t *testing.T, filename string) (string, string) {
-	dir := t.TempDir()
-	nestedDir := dir + "test"
-
-	os.Mkdir(nestedDir, 0777)
-
-	file, err := os.CreateTemp(nestedDir, filename)
-	if err != nil {
-		t.Fatalf("Failed created temp file. %s", err)
-	}
-	defer file.Close()
-
-	return nestedDir, file.Name()
 }

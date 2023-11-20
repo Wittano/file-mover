@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// TODO Improve Trash path for other block devices e.g. for NTFS devices
 var TrashPath = filepath.Join(os.Getenv("HOME"), ".locale", "share", "Trash", "files")
 
 func moveToTrashTask() {
@@ -23,9 +24,9 @@ func moveToTrashTask() {
 }
 
 func moveFileToTrash(dir setting.Directory) {
-	for _, paths := range dir.Src {
-		if isAfterDateOfRemovingFile(paths, dir.After) {
-			go file.MoveToDestination(TrashPath, paths)
+	for _, p := range dir.Src {
+		if isAfterDateOfRemovingFile(p, dir.After) {
+			go file.MoveToDestination(TrashPath, p)
 		}
 	}
 }
@@ -37,5 +38,10 @@ func isAfterDateOfRemovingFile(path string, after uint) bool {
 		return false
 	}
 
-	return stat.ModTime().Add(time.Hour * 24 * time.Duration(after)).After(time.Now())
+	afterTime := time.Hour * 24 * time.Duration(after)
+	if afterTime == 0 {
+		return true
+	}
+
+	return stat.ModTime().Add(afterTime).After(time.Now())
 }

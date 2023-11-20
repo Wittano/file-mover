@@ -31,6 +31,7 @@ func load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	// TODO Add validator
 	config = new(Config)
 	config.Dirs = maps.Values(unmarshal)
 

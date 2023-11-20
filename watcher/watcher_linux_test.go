@@ -4,6 +4,7 @@ package watcher
 
 import (
 	"errors"
+	"github.com/wittano/filebot/internal/test"
 	"github.com/wittano/filebot/setting"
 	"os"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAddFileToObservable(t *testing.T) {
-	conf := createTestConfiguration(t)
+	conf := test.CreateTestConfiguration(t)
 
 	w := NewWatcher()
 	w.AddFilesToObservable(conf)
@@ -42,7 +43,7 @@ func TestAddFileToObservable(t *testing.T) {
 }
 
 func TestAddFileToObservableRecursive(t *testing.T) {
-	conf := createTestConfigurationWithRecursive(t)
+	conf := test.CreateTestConfigurationWithRecursive(t)
 
 	w := NewWatcher()
 	w.AddFilesToObservable(conf)
@@ -96,43 +97,4 @@ func BenchmarkAddFilesToObservable(b *testing.B) {
 	}
 
 	b.ReportAllocs()
-}
-
-func createTestConfiguration(t *testing.T) *setting.Config {
-	tempDir := t.TempDir()
-	secondTempDir := t.TempDir()
-	tempFile, err := os.CreateTemp(tempDir, "test.mp4")
-	if err != nil {
-		t.Fatalf("Failed creating temp file: %s", err)
-	}
-	defer tempFile.Close()
-
-	return &setting.Config{Dirs: []setting.Directory{
-		{
-			Src:       []string{tempFile.Name()},
-			Dest:      secondTempDir,
-			Recursive: false,
-		},
-	}}
-}
-
-func createTestConfigurationWithRecursive(t *testing.T) *setting.Config {
-	tempDir := t.TempDir()
-	secondTempDir := tempDir + "/test"
-
-	os.Mkdir(secondTempDir, 0777)
-
-	tempFile, err := os.CreateTemp(secondTempDir, "test.mp4")
-	if err != nil {
-		t.Fatalf("Failed creating temp file: %s", err)
-	}
-	defer tempFile.Close()
-
-	return &setting.Config{Dirs: []setting.Directory{
-		{
-			Src:       []string{tempFile.Name()},
-			Dest:      tempDir,
-			Recursive: true,
-		},
-	}}
 }
