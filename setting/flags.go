@@ -7,40 +7,41 @@ import (
 	"time"
 )
 
-var Flags = NewFlag()
-
 type Flag struct {
 	ConfigPath     string
 	UpdateInterval time.Duration
 }
 
-func NewFlag() Flag {
-	return Flag{
-		GetDefaultConfigPath(),
-		GetDefaultUpdateInterval(),
-	}
+var Flags = Flag{
+	DefaultConfigPath(),
+	DefaultUpdateInterval(),
 }
 
-func (f Flag) GetConfig() *Config {
-	c, err := GetConfig(f.ConfigPath)
+func (f Flag) Config() *Config {
+	if config != nil {
+		return config
+	}
+
+	c, err := load(f.ConfigPath)
 	if err != nil {
-		log.Fatalf("Failed to get config file: %s", f.ConfigPath)
+		// TODO Add debug logs
+		log.Fatalf("Failed to load config file: %s", f.ConfigPath)
 	}
 
 	return c
 }
 
-func GetDefaultConfigPath() string {
+func DefaultConfigPath() string {
 	homeDir, err := homedir.Dir()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to find home directory. %s", err)
 	}
 
 	// TODO Change config file from TOML to YAML
 	return filepath.Join(homeDir, ".setting", "filebot", "setting.toml")
 }
 
-func GetDefaultUpdateInterval() time.Duration {
+func DefaultUpdateInterval() time.Duration {
 	duration, _ := time.ParseDuration("10m")
 	return duration
 }

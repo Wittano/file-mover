@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetDefaultConfigPath(t *testing.T) {
-	dir := GetDefaultConfigPath()
+	dir := DefaultConfigPath()
 
 	if dir != filepath.Join(os.Getenv("USERPROFILE"), ".setting\\filebot\\setting.toml") {
 		t.Fatalf("Invalid default setting path. Expected %s\\.setting\\filebot\\setting.toml, Acually: %s", os.Getenv("USERPROFILE"), dir)

@@ -5,7 +5,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/wittano/filebot/cron"
 	"github.com/wittano/filebot/file"
-	"github.com/wittano/filebot/path"
 	"github.com/wittano/filebot/setting"
 	"log"
 	"os"
@@ -36,7 +35,7 @@ func NewWatcher() MyWatcher {
 	}
 }
 
-func (w *MyWatcher) ObserveFiles() {
+func (w MyWatcher) ObserveFiles() {
 	for {
 		select {
 		case e, ok := <-w.Events:
@@ -67,36 +66,24 @@ func (w MyWatcher) WaitForEvents() {
 	}
 }
 
-func (w *MyWatcher) AddFilesToObservable(config *setting.Config) {
+func (w *MyWatcher) AddFilesToObservable(config setting.Config) {
 	for _, dir := range config.Dirs {
-		for _, src := range dir.Src {
-			var (
-				err   error
-				paths []string
-			)
+		paths, err := dir.RealPaths()
+		if err != nil {
+			log.Printf("Failed to get path for files")
+			continue
+		}
 
-			if dir.Recursive {
-				paths, err = path.GetPathFromPatternRecursive(src)
-			} else {
-				paths, err = path.GetPathsFromPattern(src)
+		if paths != nil {
+			destPath := dir.Dest
+			if dir.Dest == "" {
+				destPath = cron.TrashPath
 			}
 
-			if err != nil {
-				log.Printf("Invalid path: %s", err)
-				continue
-			}
+			go w.fillFileObservedMap(paths, destPath)
 
-			if paths != nil {
-				destPath := dir.Dest
-				if dir.Dest == "" {
-					destPath = cron.TrashPath
-				}
-
-				go w.fillFileObservedMap(paths, destPath)
-
-				w.addFilesToObservable(paths...)
-				go file.MoveToDestination(destPath, paths...)
-			}
+			w.addFilesToObservable(paths...)
+			go file.MoveToDestination(destPath, paths...)
 		}
 	}
 }
@@ -117,10 +104,11 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	}
 }
 
+// TODO Migrate schedule task to go-cron task
 func (w *MyWatcher) UpdateObservableFileList() {
 	var wg sync.WaitGroup
 
-	conf := setting.Flags.GetConfig()
+	conf := setting.Flags.Config()
 
 	timer := time.NewTicker(setting.Flags.UpdateInterval)
 	defer timer.Stop()
@@ -132,7 +120,7 @@ func (w *MyWatcher) UpdateObservableFileList() {
 
 		go w.removeUnnecessaryFiles(&wg)
 		go func(wg *sync.WaitGroup) {
-			w.AddFilesToObservable(conf)
+			w.AddFilesToObservable(*conf)
 
 			wg.Done()
 		}(&wg)

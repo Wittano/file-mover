@@ -1,13 +1,17 @@
 [Picture]
-src = [ "/tmp/test" ]
+src = ["/tmp/test"]
 dest = "/tmp/test2"
 recursive = true
 
 [Music]
-src = [ "/tmp/test2/*.mp4" ]
+src = ["/tmp/test2/*.mp4"]
 dest = "/tmp"
 
 [MoveToTrash]
-src = [ "/tmp/test3" ]
+src = ["/tmp/test3"]
 moveToTrash = true
 after = 32
+
+[Exception]
+src = ["/tmp/test3"]
+exceptions = ["test2"]

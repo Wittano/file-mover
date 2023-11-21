@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
+	"golang.org/x/exp/slices"
 	"log"
 	"os"
 	"path/filepath"
@@ -14,7 +15,7 @@ import (
 var TrashPath = filepath.Join(os.Getenv("HOME"), ".locale", "share", "Trash", "files")
 
 func moveToTrashTask() {
-	c := setting.Flags.GetConfig()
+	c := setting.Flags.Config()
 
 	for _, dir := range c.Dirs {
 		if dir.MoveToTrash {
@@ -24,7 +25,17 @@ func moveToTrashTask() {
 }
 
 func moveFileToTrash(dir setting.Directory) {
-	for _, p := range dir.Src {
+	paths, err := dir.RealPaths()
+	if err != nil {
+		log.Printf("Failed to get file paths. %s", err)
+		return
+	}
+
+	for _, p := range paths {
+		if slices.Contains(dir.Exceptions, p) {
+			continue
+		}
+
 		if isAfterDateOfRemovingFile(p, dir.After) {
 			go file.MoveToDestination(TrashPath, p)
 		}

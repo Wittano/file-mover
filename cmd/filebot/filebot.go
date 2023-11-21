@@ -9,10 +9,10 @@ import (
 )
 
 func runMainCommand(_ *cobra.Command, _ []string) {
-	conf := setting.Flags.GetConfig()
+	conf := setting.Flags.Config()
 
 	w := watcher.NewWatcher()
-	w.AddFilesToObservable(conf)
+	w.AddFilesToObservable(*conf)
 
 	s := cron.NewScheduler()
 	s.StartAsync()

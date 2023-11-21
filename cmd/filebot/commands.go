@@ -15,6 +15,6 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&setting.Flags.ConfigPath, "setting", "c", setting.GetDefaultConfigPath(), "Specific path for filebot configuration")
-	rootCmd.PersistentFlags().DurationVarP(&setting.Flags.UpdateInterval, "updateInterval", "u", setting.GetDefaultUpdateInterval(), "Set time after filebot should be refresh watched file state")
+	rootCmd.PersistentFlags().StringVarP(&setting.Flags.ConfigPath, "setting", "c", setting.DefaultConfigPath(), "Specific path for filebot configuration")
+	rootCmd.PersistentFlags().DurationVarP(&setting.Flags.UpdateInterval, "updateInterval", "u", setting.DefaultUpdateInterval(), "Set time after filebot should be refresh watched file state")
 }
