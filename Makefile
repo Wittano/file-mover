@@ -9,5 +9,15 @@ test: build
 clean:
 	rm -r build
 
-build-nix:
+# TODO Install .service file
+systemd:
+
+# TODO Create installer for filebot
+install:
+
+# TODO Create uninstall for filebot
+uninstall: clean
+
+
+nix:
 	nix build .

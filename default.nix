@@ -2,9 +2,10 @@
 
 buildGoModule rec {
   name = "filebot";
-  src = ./../.;
+  src = ./.;
 
-  vendorHash = "sha256-YVbhTJ1gwwpWhxgUHQlp+udSx3sLtMlr1TiZWsIeORA";
+  # TODO Update vendorHash during push a relase version v1.0
+  vendorHash = "sha256-XPRA1i8guYzLDEu5/QCzPhO/CHjNtgx2WNyafuoKjzc=";
 
   goMod = ./.;
 }
