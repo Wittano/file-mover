@@ -5,12 +5,12 @@ import (
 	"github.com/wittano/filebot/path"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 )
 
+// TODO Add validation
 type Config struct {
 	Dirs []Directory
 }
@@ -33,7 +33,7 @@ func (d Directory) RealPaths() (paths []string, err error) {
 		}
 
 		if err != nil {
-			log.Printf("Failed get files from pattern '%s'\n", exp)
+			Logger().Errorf("Failed get files from pattern '%s'", err, exp)
 			return
 		}
 
@@ -63,7 +63,7 @@ func (d Directory) filterRealPaths(paths []string) (res []string) {
 		for _, exp := range d.Exceptions {
 			reg, err := regexp.Compile(exp)
 			if err != nil {
-				log.Printf("Failed to compile regex: '%s'", exp)
+				Logger().Warnf("Failed to compile regex: '%s'", nil, exp)
 				continue
 			}
 

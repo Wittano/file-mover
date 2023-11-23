@@ -2,6 +2,7 @@ package setting
 
 import (
 	"github.com/mitchellh/go-homedir"
+	"github.com/wittano/filebot/logger"
 	"log"
 	"path/filepath"
 	"time"
@@ -10,11 +11,15 @@ import (
 type Flag struct {
 	ConfigPath     string
 	UpdateInterval time.Duration
+	LogFilePath    string
+	LogLevelName   string
 }
 
 var Flags = Flag{
 	DefaultConfigPath(),
 	DefaultUpdateInterval(),
+	"",
+	"",
 }
 
 func (f Flag) Config() *Config {
@@ -24,11 +29,27 @@ func (f Flag) Config() *Config {
 
 	c, err := load(f.ConfigPath)
 	if err != nil {
-		// TODO Add debug logs
-		log.Fatalf("Failed to load config file: %s", f.ConfigPath)
+		Logger().Fatal("Failed to load config file", err)
 	}
 
 	return c
+}
+
+func (f Flag) LogLevel() logger.LogLevel {
+	var level logger.LogLevel
+
+	switch f.LogLevelName {
+	case "ALL":
+		level = logger.ALL
+	case "DEBUG":
+		level = logger.DEBUG
+	case "WARN":
+		level = logger.WARN
+	default:
+		level = logger.INFO
+	}
+
+	return level
 }
 
 func DefaultConfigPath() string {

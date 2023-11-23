@@ -5,7 +5,6 @@ import (
 	"github.com/wittano/filebot/cron"
 	"github.com/wittano/filebot/setting"
 	"github.com/wittano/filebot/watcher"
-	"log"
 )
 
 func runMainCommand(_ *cobra.Command, _ []string) {
@@ -26,6 +25,6 @@ func runMainCommand(_ *cobra.Command, _ []string) {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
+		setting.Logger().Fatal("Failed to start FileBot", err)
 	}
 }

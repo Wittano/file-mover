@@ -6,7 +6,6 @@ import (
 	"github.com/wittano/filebot/cron"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
-	"log"
 	"os"
 	"sync"
 	"time"
@@ -23,7 +22,7 @@ type MyWatcher struct {
 func NewWatcher() MyWatcher {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatalf("Failed initialized file system w: %s", err)
+		setting.Logger().Fatal("Failed initialized system file watcher", err)
 	}
 
 	blocker := make(chan bool)
@@ -55,7 +54,7 @@ func (w MyWatcher) ObserveFiles() {
 				return
 			}
 
-			log.Printf("Error %s", err)
+			setting.Logger().Error("Watcher got unexpected error", err)
 		}
 	}
 }
@@ -70,7 +69,7 @@ func (w *MyWatcher) AddFilesToObservable(config setting.Config) {
 	for _, dir := range config.Dirs {
 		paths, err := dir.RealPaths()
 		if err != nil {
-			log.Printf("Failed to get path for files")
+			setting.Logger().Error("Failed to get path for files", err)
 			continue
 		}
 
@@ -99,7 +98,7 @@ func (w *MyWatcher) fillFileObservedMap(src []string, dest string) {
 func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	for _, p := range paths {
 		if err := w.Add(p); err != nil {
-			log.Printf("Cannot add %s file/directory to tracing list: %s", p, err)
+			setting.Logger().Errorf("Cannot add %s file/directory to tracing list", err, p)
 		}
 	}
 }

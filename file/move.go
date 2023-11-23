@@ -2,14 +2,14 @@ package file
 
 import (
 	"errors"
-	"log"
+	"github.com/wittano/filebot/setting"
 	"os"
 	"path/filepath"
 )
 
 func MoveToDestination(dest string, paths ...string) {
 	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
-		log.Printf("Destination directory %s doesn't exist", dest)
+		setting.Logger().Errorf("Destination directory %s doesn't exist", err, dest)
 		return
 	}
 
@@ -19,11 +19,11 @@ func MoveToDestination(dest string, paths ...string) {
 		if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
 			err := os.Rename(src, newPath)
 			if err != nil {
-				log.Printf("Failed to move file from %s to %s. %s", src, newPath, err)
+				setting.Logger().Errorf("Failed to move file from %s to %s", err, src, newPath)
 				return
 			}
 
-			log.Printf("Moved file from %s to %s", src, dest)
+			setting.Logger().Info("Moved file from %s to %s", src, dest)
 		}
 	}
 }

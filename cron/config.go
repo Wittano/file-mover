@@ -2,7 +2,7 @@ package cron
 
 import (
 	"github.com/go-co-op/gocron"
-	"log"
+	"github.com/wittano/filebot/setting"
 	"time"
 )
 
@@ -11,7 +11,7 @@ func NewScheduler() *gocron.Scheduler {
 
 	_, err := s.Every(1).Hours().Do(moveToTrashTask)
 	if err != nil {
-		log.Fatal(err)
+		setting.Logger().Fatal("Failed to register 'moveToTrash' task", err)
 	}
 
 	return s
