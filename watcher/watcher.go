@@ -103,7 +103,6 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	}
 }
 
-// TODO Migrate schedule task to go-cron task
 func (w *MyWatcher) UpdateObservableFileList() {
 	var wg sync.WaitGroup
 

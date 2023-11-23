@@ -1,6 +1,8 @@
 package setting
 
 import (
+	"errors"
+	"github.com/go-playground/validator/v10"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/wittano/filebot/path"
 	"golang.org/x/exp/maps"
@@ -10,21 +12,27 @@ import (
 	"regexp"
 )
 
-// TODO Add validation
 type Config struct {
-	Dirs []Directory
+	Dirs []Directory `validate:"required"`
 }
 
 type Directory struct {
-	Src         []string
-	Dest        string
+	Src         []string `validate:"required"`
+	Dest        string   `validate:"required_if=MoveToTrash false"`
 	Recursive   bool
-	MoveToTrash bool
+	MoveToTrash bool `validate:"required_without=Dest"`
 	After       uint
 	Exceptions  []string
 }
 
 func (d Directory) RealPaths() (paths []string, err error) {
+	v := validator.New(validator.WithRequiredStructEnabled())
+
+	err = v.Struct(d)
+	if err != nil {
+		return
+	}
+
 	for _, exp := range d.Src {
 		if d.Recursive {
 			paths, err = path.GetPathFromPatternRecursive(exp)
@@ -90,9 +98,20 @@ func load(path string) (*Config, error) {
 		return nil, err
 	}
 
-	// TODO Add validator
+	if len(unmarshal) == 0 {
+		return nil, errors.New("config file is empty")
+	}
+
 	config = new(Config)
 	config.Dirs = maps.Values(unmarshal)
+
+	v := validator.New(validator.WithRequiredStructEnabled())
+
+	for _, d := range config.Dirs {
+		if err = v.Struct(d); err != nil {
+			return nil, err
+		}
+	}
 
 	return config, nil
 }

@@ -9,10 +9,10 @@ import (
 )
 
 type Flag struct {
-	ConfigPath     string
-	UpdateInterval time.Duration
-	LogFilePath    string
-	LogLevelName   string
+	ConfigPath     string        `validation:"required,filepath"`
+	UpdateInterval time.Duration `validation:"required,min=1m"`
+	LogFilePath    string        `validation:"filepath"`
+	LogLevelName   string        `validation:"required_with=LogFilePath"`
 }
 
 var Flags = Flag{

@@ -14,4 +14,5 @@ after = 32
 
 [Exception]
 src = ["/tmp/test3"]
+dest = "/tmp/test"
 exceptions = ["test2"]

@@ -41,8 +41,9 @@ func TestMoveFileToTrash(t *testing.T) {
 	f := test.CreateTempFile(t)
 	TrashPath = t.TempDir()
 	dir := setting.Directory{
-		Src:   []string{f},
-		After: 0,
+		Src:         []string{f},
+		MoveToTrash: true,
+		After:       0,
 	}
 
 	moveFileToTrash(dir)
