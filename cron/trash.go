@@ -5,12 +5,8 @@ import (
 	"github.com/wittano/filebot/setting"
 	"golang.org/x/exp/slices"
 	"os"
-	"path/filepath"
 	"time"
 )
-
-// TODO Improve Trash path for other block devices e.g. for NTFS devices
-var TrashPath = filepath.Join(os.Getenv("HOME"), ".locale", "share", "Trash", "files")
 
 func moveToTrashTask() {
 	c := setting.Flags.Config()
@@ -20,6 +16,8 @@ func moveToTrashTask() {
 			moveFileToTrash(dir)
 		}
 	}
+
+	setting.Logger().Debug("Complete 'moveToTrash' task", nil)
 }
 
 func moveFileToTrash(dir setting.Directory) {
@@ -35,7 +33,13 @@ func moveFileToTrash(dir setting.Directory) {
 		}
 
 		if isAfterDateOfRemovingFile(p, dir.After) {
-			go file.MoveToDestination(TrashPath, p)
+			trashPath, err := dir.TrashDir()
+			if err != nil {
+				setting.Logger().Error("Failed to find trash directory", err)
+				return
+			}
+
+			go file.MoveToDestination(trashPath, p)
 		}
 	}
 }

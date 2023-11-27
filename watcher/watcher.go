@@ -3,7 +3,6 @@ package watcher
 import (
 	"errors"
 	"github.com/fsnotify/fsnotify"
-	"github.com/wittano/filebot/cron"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
 	"os"
@@ -76,7 +75,12 @@ func (w *MyWatcher) AddFilesToObservable(config setting.Config) {
 		if paths != nil {
 			destPath := dir.Dest
 			if dir.Dest == "" {
-				destPath = cron.TrashPath
+				destPath, err = dir.TrashDir()
+			}
+
+			if err != nil {
+				setting.Logger().Error("Failed to find trash directory", err)
+				break
 			}
 
 			go w.fillFileObservedMap(paths, destPath)

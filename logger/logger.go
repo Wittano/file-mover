@@ -40,7 +40,7 @@ func (f fileStdWriter) Write(p []byte) (n int, err error) {
 }
 
 func writeToLogFile(path string, p []byte) {
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND, 0600)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatalf("Failed to open log file")
 	}

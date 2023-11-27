@@ -3,13 +3,17 @@ package setting
 import (
 	"errors"
 	"github.com/go-playground/validator/v10"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pelletier/go-toml/v2"
+	"github.com/wittano/filebot/internal/linux"
 	"github.com/wittano/filebot/path"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -83,6 +87,54 @@ func (d Directory) filterRealPaths(paths []string) (res []string) {
 	}
 
 	return
+}
+
+func (d Directory) TrashDir() (trashDir string, err error) {
+	if !d.MoveToTrash {
+		return "", nil
+	}
+
+	dir := filepath.Dir(d.Src[0])
+	_, err = os.Stat(dir)
+	if err != nil {
+		return
+	}
+
+	fs, err := linux.MountedList()
+	if err != nil {
+		return
+	}
+
+	trashName := ".Trash-" + strconv.Itoa(os.Getuid())
+
+	for _, device := range fs {
+		if strings.Contains(dir, device.MountedPoint) && device.MountedPoint != "/" {
+			trashDir = filepath.Join(device.MountedPoint, trashName, "files")
+			break
+		} else if device.MountedPoint == "/" && isUserRoot() {
+			trashDir = "/root/.Trash-0/files"
+		}
+	}
+
+	homeDir, err := homedir.Dir()
+	if err != nil {
+		return
+	}
+
+	if trashDir == "" {
+		trashDir = filepath.Join(homeDir, ".local", "share", trashName, "files")
+	}
+
+	err = os.MkdirAll(trashDir, 0700)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func isUserRoot() bool {
+	return os.Getuid() == 0
 }
 
 var config *Config

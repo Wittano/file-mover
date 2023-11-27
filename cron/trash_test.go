@@ -39,7 +39,6 @@ func TestIsAfterDateOfRemovingFileButAfterTimeIsEqualZero(t *testing.T) {
 
 func TestMoveFileToTrash(t *testing.T) {
 	f := test.CreateTempFile(t)
-	TrashPath = t.TempDir()
 	dir := setting.Directory{
 		Src:         []string{f},
 		MoveToTrash: true,
@@ -54,7 +53,12 @@ func TestMoveFileToTrash(t *testing.T) {
 		t.Fatalf("File %s didn't move from original source", f)
 	}
 
-	newFilePath := filepath.Join(TrashPath, filepath.Base(f))
+	trashDir, err := dir.TrashDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	newFilePath := filepath.Join(trashDir, filepath.Base(f))
 
 	if _, err := os.Stat(newFilePath); err != nil {
 		t.Fatalf("File %s didn't move to destination directory. %s", f, err)
