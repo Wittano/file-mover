@@ -3,6 +3,7 @@ package setting
 import (
 	"fmt"
 	"github.com/wittano/filebot/internal/test"
+	"golang.org/x/exp/slices"
 	"os"
 	"testing"
 )
@@ -51,9 +52,12 @@ func TestGetTrashDir(t *testing.T) {
 		t.Fatal("MoveToTrash field is false")
 	}
 
-	exp := fmt.Sprintf("/tmp/.Trash-%d/files", os.Getuid())
+	exp := []string{
+		fmt.Sprintf("/tmp/.Trash-%d/files", os.Getuid()),
+		fmt.Sprintf("%s/.local/share/.Trash-%d/files", os.Getenv("HOME"), os.Getuid()),
+	}
 
-	if exp != res {
-		t.Fatalf("Trash dir is diffrent. Expected: %s, Actually: %s", exp, res)
+	if !slices.Contains(exp, res) {
+		t.Fatalf("Trash dir is diffrent. Expected one of them: %v, Actually: %s", exp, res)
 	}
 }
