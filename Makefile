@@ -9,15 +9,14 @@ test: build
 clean:
 	rm -r build
 
-# TODO Install .service file
-systemd:
+systemd: install
+	cp systemd/filebot.service /etc/systemd/system/filebot.service
 
-# TODO Create installer for filebot
-install:
+install: build
+	cp build/filebot /usr/bin/filebot
 
-# TODO Create uninstall for filebot
 uninstall: clean
-
+	rm /usr/bin/filebot
 
 nix:
 	nix build .
