@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/wittano/filebot/internal/test"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -35,12 +34,11 @@ func TestFailedLoadingConfig(t *testing.T) {
 }
 
 func TestGetTrashDir(t *testing.T) {
-	destDir := t.TempDir()
 	tempFile := test.CreateTempFile(t)
 
 	d := Directory{
 		Src:         []string{tempFile},
-		Dest:        destDir,
+		Dest:        t.TempDir(),
 		MoveToTrash: true,
 	}
 
@@ -53,12 +51,7 @@ func TestGetTrashDir(t *testing.T) {
 		t.Fatal("MoveToTrash field is false")
 	}
 
-	var exp string
-	if strings.Contains(destDir, "/tmp") {
-		exp = fmt.Sprintf("/tmp/.Trash-%d/files", os.Getuid())
-	} else {
-		exp = fmt.Sprintf("%s/.local/share/.Trash-%d/files", os.Getenv("HOME"), os.Getuid())
-	}
+	exp := fmt.Sprintf("/tmp/.Trash-%d/files", os.Getuid())
 
 	if exp != res {
 		t.Fatalf("Trash dir is diffrent. Expected: %s, Actually: %s", exp, res)

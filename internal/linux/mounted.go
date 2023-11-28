@@ -13,7 +13,7 @@ type FileSystem struct {
 }
 
 func MountedList() (fss []FileSystem, err error) {
-	f, err := os.Open("/etc/mtab")
+	f, err := os.Open("/proc/mounts")
 	if err != nil {
 		return nil, err
 	}
