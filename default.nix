@@ -4,8 +4,11 @@ buildGoModule rec {
   name = "filebot";
   src = ./.;
 
-  # TODO Update vendorHash during push a relase version v1.0
-  vendorHash = "sha256-XPRA1i8guYzLDEu5/QCzPhO/CHjNtgx2WNyafuoKjzc=";
+  vendorHash = "sha256-plRphEIwtPoej+bM4fChhOjBGO/BJ2KoCjZnyD/Z634=";
+
+  patches = [
+    "./patches/fix(config)__changed_path_for_nix_build.patch"
+  ];
 
   goMod = ./.;
 }

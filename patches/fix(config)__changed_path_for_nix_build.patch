@@ -1,0 +1,19 @@
+Subject: [PATCH] fix(config): changed path for nix build
+---
+Index: setting/config_file_test.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/setting/config_file_test.go b/setting/config_file_test.go
+--- a/setting/config_file_test.go	(revision 72877c31f083a06d58cc2d590e762c6751f58afb)
++++ b/setting/config_file_test.go	(date 1701188208131)
+@@ -53,7 +53,7 @@
+ 	}
+ 
+ 	exp := []string{
+-		fmt.Sprintf("/tmp/.Trash-%d/files", os.Getuid()),
++		fmt.Sprintf("/build/.Trash-%d/files", os.Getuid()),
+ 		fmt.Sprintf("%s/.local/share/.Trash-%d/files", os.Getenv("HOME"), os.Getuid()),
+ 	}
+ 
