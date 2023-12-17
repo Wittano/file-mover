@@ -34,7 +34,7 @@ func TestFailedLoadingConfig(t *testing.T) {
 	}
 }
 
-func TestGetTrashDir(t *testing.T) {
+func TestTrashDir(t *testing.T) {
 	tempFile := test.CreateTempFile(t)
 
 	d := Directory{

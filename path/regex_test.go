@@ -9,7 +9,7 @@ type argument struct {
 	out string
 }
 
-func TestGetPathRegex(t *testing.T) {
+func TestPathRegex(t *testing.T) {
 	paths := []argument{
 		{"/path/to/example*", "example.txt"},
 		{"/path/to/example*", "example1234123412.txt"},
@@ -22,7 +22,7 @@ func TestGetPathRegex(t *testing.T) {
 
 	for _, p := range paths {
 		t.Run(p.in, func(t *testing.T) {
-			res, err := GetPathRegex(p.in)
+			res, err := Regex(p.in)
 			if err != nil {
 				t.Fatalf("Failed to extract regex from path. %s", err)
 			}

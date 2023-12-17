@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 )
 
-func GetPathsFromPattern(src string) ([]string, error) {
-	reg, err := GetPathRegex(src)
+func PathsFromPattern(src string) ([]string, error) {
+	reg, err := Regex(src)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func GetPathsFromPattern(src string) ([]string, error) {
 	return paths, nil
 }
 
-func GetPathFromPatternRecursive(path string) ([]string, error) {
+func PathsFromPatternRecursive(path string) ([]string, error) {
 	dir, pattern := filepath.Split(path)
 	if !isFilePathIsRegex(pattern) {
 		dir = path
@@ -41,7 +41,7 @@ func GetPathFromPatternRecursive(path string) ([]string, error) {
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		return GetPathsFromPattern(dir)
+		return PathsFromPattern(dir)
 	}
 
 	var (
@@ -53,9 +53,9 @@ func GetPathFromPatternRecursive(path string) ([]string, error) {
 		var path []string
 
 		if f.IsDir() {
-			path, err = GetPathFromPatternRecursive(dir + f.Name())
+			path, err = PathsFromPatternRecursive(dir + f.Name())
 		} else {
-			path, err = GetPathsFromPattern(filepath.Join(dir, f.Name()))
+			path, err = PathsFromPattern(filepath.Join(dir, f.Name()))
 		}
 
 		if err != nil {

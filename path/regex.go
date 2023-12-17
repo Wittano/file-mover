@@ -5,10 +5,10 @@ import (
 	"regexp"
 )
 
-func GetPathRegex(src string) (*regexp.Regexp, error) {
+func Regex(src string) (*regexp.Regexp, error) {
 	pattern := filepath.Base(src)
 
-	reg, err := regexp.Compile("\\*")
+	reg, err := regexp.Compile(`\*`)
 	if err != nil {
 		return nil, err
 	}

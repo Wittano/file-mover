@@ -39,9 +39,9 @@ func (d Directory) RealPaths() (paths []string, err error) {
 
 	for _, exp := range d.Src {
 		if d.Recursive {
-			paths, err = path.GetPathFromPatternRecursive(exp)
+			paths, err = path.PathsFromPatternRecursive(exp)
 		} else {
-			paths, err = path.GetPathsFromPattern(exp)
+			paths, err = path.PathsFromPattern(exp)
 		}
 
 		if err != nil {
