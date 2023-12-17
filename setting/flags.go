@@ -59,7 +59,7 @@ func DefaultConfigPath() string {
 	}
 
 	// TODO Change config file from TOML to YAML
-	return filepath.Join(homeDir, ".setting", "filebot", "setting.toml")
+	return filepath.Join(homeDir, ".config", "filebot", "setting.toml")
 }
 
 func DefaultUpdateInterval() time.Duration {

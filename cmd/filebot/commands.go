@@ -16,10 +16,10 @@ var (
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&setting.Flags.ConfigPath, "setting", "c", setting.DefaultConfigPath(), "Specific path for filebot configuration")
-	rootCmd.PersistentFlags().StringVarP(&setting.Flags.LogFilePath, "log", "l", "", "Path to log file")
-	rootCmd.PersistentFlags().StringVarP(&setting.Flags.LogLevelName, "logLevel", "", "INFO", "Log level")
-	rootCmd.PersistentFlags().DurationVarP(&setting.Flags.UpdateInterval, "updateInterval", "u", setting.DefaultUpdateInterval(), "Set time after filebot should be refresh watched file state")
+	rootCmd.PersistentFlags().StringVarP(&setting.Flags.ConfigPath, "config", "c", setting.DefaultConfigPath(), "specific path for filebot configuration")
+	rootCmd.PersistentFlags().StringVarP(&setting.Flags.LogFilePath, "log", "l", "", "path to log file")
+	rootCmd.PersistentFlags().StringVarP(&setting.Flags.LogLevelName, "logLevel", "", "INFO", "log level")
+	rootCmd.PersistentFlags().DurationVarP(&setting.Flags.UpdateInterval, "updateInterval", "u", setting.DefaultUpdateInterval(), "set time after filebot should be refresh watched file state")
 
 	v := validator.New(validator.WithRequiredStructEnabled())
 	if err := v.Struct(setting.Flags); err != nil {
