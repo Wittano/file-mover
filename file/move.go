@@ -2,12 +2,15 @@ package file
 
 import (
 	"errors"
+	"github.com/wittano/filebot/path"
 	"github.com/wittano/filebot/setting"
 	"os"
 	"path/filepath"
 )
 
 func MoveToDestination(dest string, paths ...string) {
+	dest = path.ReplaceEnvVariablesInPath(dest)
+
 	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
 		setting.Logger().Errorf("Destination directory %s doesn't exist", err, dest)
 		return

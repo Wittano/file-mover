@@ -17,6 +17,21 @@ func TestPathsFromRegex(t *testing.T) {
 	}
 }
 
+func TestPathsFromRegexWithEnvVariable(t *testing.T) {
+	err := os.Setenv("TEST", filepath.Dir(t.TempDir()))
+	if err != nil {
+		t.Fatalf("Failed create TEST enviromnent variable. %s", err)
+	}
+
+	exp := test.CreateTempFile(t)
+	exp = strings.ReplaceAll(exp, filepath.Dir(t.TempDir()), "$TEST")
+
+	paths, err := PathsFromPattern(exp)
+	if err == nil && len(paths) != 1 && paths[0] == exp {
+		t.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
+	}
+}
+
 func TestPathsFromRegexButRegexStartFromStar(t *testing.T) {
 	p := test.CreateTempFile(t)
 	exp := strings.Replace(p, "test", "*est", 1)

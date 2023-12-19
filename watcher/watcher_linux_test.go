@@ -7,6 +7,7 @@ import (
 	"github.com/wittano/filebot/setting"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -36,9 +37,46 @@ func TestAddFileToObservable(t *testing.T) {
 		t.Fatal("File didn't move from started location")
 	}
 
-	dest := conf.Dirs[0].Dest
+	dest := filepath.Join(conf.Dirs[0].Dest, filepath.Base(src))
 	if _, err := os.Stat(dest); err != nil {
-		t.Fatal("File didn't move to destination location")
+		t.Fatalf("File %s didn't move to destination location", dest)
+	}
+}
+
+func TestAddFileToObservableButDestinationPathHasEnvVariable(t *testing.T) {
+	conf := createTestConfiguration(t)
+
+	os.Setenv("TEST", filepath.Dir(t.TempDir()))
+
+	conf.Dirs[0].Dest = strings.ReplaceAll(conf.Dirs[0].Dest, filepath.Dir(t.TempDir()), "$TEST")
+
+	w := NewWatcher()
+	w.AddFilesToObservable(*conf)
+
+	if len(w.WatchList()) != 1 {
+		t.Fatalf("Invalid number of watched files. Expected 1, actually %d", len(w.Watcher.WatchList()))
+	}
+
+	src := conf.Dirs[0].Src[0]
+	if w.WatchList()[0] != src {
+		t.Fatalf(
+			"Invalid path was added to observation list. Expected %s, actually %s",
+			src,
+			w.WatchList()[0],
+		)
+	}
+
+	duration, _ := time.ParseDuration("0.5s")
+	time.Sleep(duration)
+	if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
+		t.Fatal("File didn't move from started location")
+	}
+
+	conf.Dirs[0].Dest = strings.ReplaceAll(conf.Dirs[0].Dest, "$TEST", filepath.Dir(t.TempDir()))
+
+	dest := filepath.Join(conf.Dirs[0].Dest, filepath.Base(src))
+	if _, err := os.Stat(dest); err != nil {
+		t.Fatalf("File %s didn't move to destination location", dest)
 	}
 }
 

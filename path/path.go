@@ -3,9 +3,12 @@ package path
 import (
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func PathsFromPattern(src string) ([]string, error) {
+	src = ReplaceEnvVariablesInPath(src)
+
 	reg, err := Regex(src)
 	if err != nil {
 		return nil, err
@@ -33,7 +36,22 @@ func PathsFromPattern(src string) ([]string, error) {
 	return paths, nil
 }
 
+func ReplaceEnvVariablesInPath(src string) string {
+	sep := string(filepath.Separator)
+	parts := strings.Split(src, sep)
+
+	for i, s := range parts {
+		if v, ok := os.LookupEnv(strings.ReplaceAll(s, "$", "")); ok && v != "" {
+			parts[i] = v
+		}
+	}
+
+	return strings.Join(parts, sep)
+}
+
 func PathsFromPatternRecursive(path string) ([]string, error) {
+	path = ReplaceEnvVariablesInPath(path)
+
 	dir, pattern := filepath.Split(path)
 	if !isFilePathIsRegex(pattern) {
 		dir = path
