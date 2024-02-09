@@ -5,7 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pelletier/go-toml/v2"
-	"github.com/wittano/filebot/internal/linux"
+	"github.com/wittano/filebot/internal/filesystem"
 	"github.com/wittano/filebot/path"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -19,6 +19,8 @@ import (
 type Config struct {
 	Dirs []Directory `validate:"required"`
 }
+
+var config *Config
 
 type Directory struct {
 	Src         []string `validate:"required"`
@@ -100,7 +102,7 @@ func (d Directory) TrashDir() (trashDir string, err error) {
 		return
 	}
 
-	fs, err := linux.MountedList()
+	fs, err := filesystem.MountedList()
 	if err != nil {
 		return
 	}
@@ -136,8 +138,6 @@ func (d Directory) TrashDir() (trashDir string, err error) {
 func isUserRoot() bool {
 	return os.Getuid() == 0
 }
-
-var config *Config
 
 func load(path string) (*Config, error) {
 	bytes, err := os.ReadFile(path)
