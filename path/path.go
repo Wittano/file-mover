@@ -1,8 +1,10 @@
 package path
 
 import (
+	"github.com/mitchellh/go-homedir"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -37,6 +39,8 @@ func PathsFromPattern(src string) ([]string, error) {
 }
 
 func ReplaceEnvVariablesInPath(src string) string {
+	src = replaceTildeInPath(src)
+
 	sep := string(filepath.Separator)
 	parts := strings.Split(src, sep)
 
@@ -47,6 +51,20 @@ func ReplaceEnvVariablesInPath(src string) string {
 	}
 
 	return strings.Join(parts, sep)
+}
+
+func replaceTildeInPath(src string) string {
+	regex := regexp.MustCompile("^~*")
+	if regex.MatchString(src) {
+		home, err := homedir.Dir()
+		if err != nil {
+			home = os.Getenv("HOME")
+		}
+
+		return strings.ReplaceAll(src, "~", home)
+	}
+
+	return src
 }
 
 func PathsFromPatternRecursive(path string) ([]string, error) {

@@ -1,6 +1,7 @@
 package path
 
 import (
+	"fmt"
 	"github.com/wittano/filebot/internal/test"
 	"os"
 	"path/filepath"
@@ -29,6 +30,16 @@ func TestPathsFromRegexWithEnvVariable(t *testing.T) {
 	paths, err := PathsFromPattern(exp)
 	if err == nil && len(paths) != 1 && paths[0] == exp {
 		t.Fatalf("Failed got paths. Expected 1, acually %d", len(paths))
+	}
+}
+
+func TestReplaceTildaInPath(t *testing.T) {
+	testPath := "~/test"
+	exp := fmt.Sprintf("%s/test", os.Getenv("HOME"))
+
+	res := replaceTildeInPath(testPath)
+	if res != exp {
+		t.Fatalf("Failed replace tilde char by absolute HOME directory path. Result: %s", res)
 	}
 }
 
