@@ -10,12 +10,21 @@ import (
 	"time"
 )
 
-var mutex sync.Mutex
-
 type MyWatcher struct {
 	*fsnotify.Watcher
+	mutex        sync.Mutex
 	blocker      chan bool
 	fileObserved map[string]string
+}
+
+func (w *MyWatcher) Close() (err error) {
+	w.mutex.Lock()
+	close(w.blocker)
+
+	err = w.Watcher.Close()
+	w.mutex.Lock()
+
+	return
 }
 
 func NewWatcher() MyWatcher {
@@ -28,6 +37,7 @@ func NewWatcher() MyWatcher {
 
 	return MyWatcher{
 		w,
+		sync.Mutex{},
 		blocker,
 		make(map[string]string),
 	}
@@ -60,6 +70,8 @@ func (w MyWatcher) ObserveFiles() {
 
 func (w MyWatcher) WaitForEvents() {
 	if ok := <-w.blocker; !ok {
+		w.Close()
+
 		return
 	}
 }
@@ -93,9 +105,9 @@ func (w *MyWatcher) AddFilesToObservable(config setting.Config) {
 
 func (w *MyWatcher) fillFileObservedMap(src []string, dest string) {
 	for _, p := range src {
-		mutex.Lock()
+		w.mutex.Lock()
 		w.fileObserved[p] = dest
-		mutex.Unlock()
+		w.mutex.Unlock()
 	}
 }
 
@@ -115,7 +127,9 @@ func (w *MyWatcher) UpdateObservableFileList() {
 	timer := time.NewTicker(setting.Flags.UpdateInterval)
 	defer timer.Stop()
 
-	for {
+	ok := true
+
+	for ok {
 		wg.Add(2)
 
 		<-timer.C
@@ -128,6 +142,7 @@ func (w *MyWatcher) UpdateObservableFileList() {
 		}(&wg)
 
 		wg.Wait()
+		_, ok = <-w.blocker
 	}
 }
 

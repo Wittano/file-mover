@@ -58,7 +58,6 @@ func DefaultConfigPath() string {
 		log.Fatalf("Failed to find home directory. %s", err)
 	}
 
-	// TODO Change config file from TOML to YAML
 	return filepath.Join(homeDir, ".config", "filebot", "setting.toml")
 }
 

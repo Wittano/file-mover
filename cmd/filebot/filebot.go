@@ -11,6 +11,7 @@ func runMainCommand(_ *cobra.Command, _ []string) {
 	conf := setting.Flags.Config()
 
 	w := watcher.NewWatcher()
+	defer w.Close()
 	w.AddFilesToObservable(*conf)
 
 	s := cron.NewScheduler()
