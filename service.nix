@@ -1,9 +1,10 @@
 { config, lib, pkgs, ... }:
 
 let
-    cfg = config.services.filebot;
-    program = pkgs.callPackage ./default.nix {};
-in {
+  cfg = config.services.filebot;
+  program = pkgs.callPackage ./default.nix { };
+in
+{
   options = {
     services.filebot = {
       enable = lib.mkEnableOption "Enable filebot service";
@@ -15,7 +16,7 @@ in {
         '';
       };
       configPath = lib.mkOption {
-        type = lib.types.str;
+        type = lib.types.path;
         default = "$HOME/.setting/filebot/setting.toml";
         example = "/home/wittano/setting.toml";
         description = ''
@@ -45,7 +46,7 @@ in {
       serviceConfig.User = "${cfg.user}";
       wantedBy = [ "multi-user.target" ];
       script = ''
-        ${program}/bin/filebot -c ${cfg.configPath} -u ${cfg.updateInterval}
+        ${program}/bin/filebot -c ${builtins.toString cfg.configPath} -u ${cfg.updateInterval}
       '';
     };
   };

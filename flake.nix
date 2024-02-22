@@ -1,7 +1,7 @@
 {
-  description = "Program to automaticlly moving files from one place to another";
+  description = "Filebot - program to automaticlly moving files from one place to another";
 
-  inputs.nixpkgs.url = "nixpkgs/nixos-23.11";
+  inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs, }:
     let
