@@ -3,6 +3,7 @@
 package watcher
 
 import (
+	"context"
 	"errors"
 	"github.com/wittano/filebot/setting"
 	"os"
@@ -14,8 +15,9 @@ import (
 
 func TestAddFileToObservable(t *testing.T) {
 	conf := createTestConfiguration(t)
+	ctx := context.Background()
 
-	w := NewWatcher()
+	w := NewWatcher(ctx)
 	w.AddFilesToObservable(*conf)
 
 	if len(w.WatchList()) != 1 {
@@ -45,12 +47,13 @@ func TestAddFileToObservable(t *testing.T) {
 
 func TestAddFileToObservableButDestinationPathHasEnvVariable(t *testing.T) {
 	conf := createTestConfiguration(t)
+	ctx := context.Background()
 
 	os.Setenv("TEST", filepath.Dir(t.TempDir()))
 
 	conf.Dirs[0].Dest = strings.ReplaceAll(conf.Dirs[0].Dest, filepath.Dir(t.TempDir()), "$TEST")
 
-	w := NewWatcher()
+	w := NewWatcher(ctx)
 	w.AddFilesToObservable(*conf)
 
 	if len(w.WatchList()) != 1 {
@@ -82,8 +85,9 @@ func TestAddFileToObservableButDestinationPathHasEnvVariable(t *testing.T) {
 
 func TestAddFileToObservableButFilesAreInExceptions(t *testing.T) {
 	conf := createTestConfiguration(t)
+	ctx := context.Background()
 
-	w := NewWatcher()
+	w := NewWatcher(ctx)
 	w.AddFilesToObservable(*conf)
 
 	if len(w.WatchList()) != 1 {
@@ -113,9 +117,11 @@ func TestAddFileToObservableButFilesAreInExceptions(t *testing.T) {
 
 func TestAddFileToObservableRecursive(t *testing.T) {
 	conf := createTestConfigurationWithRecursive(t)
+	ctx := context.Background()
+
 	conf.Dirs[0].Exceptions = []string{filepath.Base(conf.Dirs[0].Src[0])}
 
-	w := NewWatcher()
+	w := NewWatcher(ctx)
 	w.AddFilesToObservable(*conf)
 
 	if len(w.WatchList()) != 0 {
@@ -139,8 +145,9 @@ func BenchmarkAddFilesToObservable(b *testing.B) {
 			Recursive: false,
 		},
 	}}
+	ctx := context.Background()
 
-	w := NewWatcher()
+	w := NewWatcher(ctx)
 
 	for i := 0; i < b.N; i++ {
 		w.AddFilesToObservable(*conf)

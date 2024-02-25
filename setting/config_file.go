@@ -16,6 +16,7 @@ import (
 	"strings"
 )
 
+// TODO Migrate from TOML to YAML with new features
 type Config struct {
 	Dirs []Directory `validate:"required"`
 }

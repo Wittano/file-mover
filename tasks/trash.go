@@ -1,6 +1,7 @@
-package cron
+package tasks
 
 import (
+	"context"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
 	"golang.org/x/exp/slices"
@@ -8,22 +9,23 @@ import (
 	"time"
 )
 
-func moveToTrashTask() {
+func MoveToTrashTask(cancel context.CancelFunc) {
 	c := setting.Flags.Config()
 
 	for _, dir := range c.Dirs {
 		if dir.MoveToTrash {
-			moveFileToTrash(dir)
+			moveFileToTrash(cancel, dir)
 		}
 	}
 
 	setting.Logger().Debug("Complete 'moveToTrash' task", nil)
 }
 
-func moveFileToTrash(dir setting.Directory) {
+func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
 	paths, err := dir.RealPaths()
 	if err != nil {
 		setting.Logger().Error("Failed to get file paths", err)
+		cancel()
 		return
 	}
 
@@ -36,6 +38,7 @@ func moveFileToTrash(dir setting.Directory) {
 			trashPath, err := dir.TrashDir()
 			if err != nil {
 				setting.Logger().Error("Failed to find trash directory", err)
+				cancel()
 				return
 			}
 

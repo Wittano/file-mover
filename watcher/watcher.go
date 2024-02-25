@@ -1,17 +1,19 @@
 package watcher
 
 import (
+	"context"
 	"errors"
 	"github.com/fsnotify/fsnotify"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
+	"github.com/wittano/filebot/tasks"
 	"os"
 	"sync"
-	"time"
 )
 
 type MyWatcher struct {
 	*fsnotify.Watcher
+	ctx          context.Context
 	mutex        sync.Mutex
 	blocker      chan bool
 	fileObserved map[string]string
@@ -27,7 +29,7 @@ func (w *MyWatcher) Close() (err error) {
 	return
 }
 
-func NewWatcher() MyWatcher {
+func NewWatcher(ctx context.Context) MyWatcher {
 	w, err := fsnotify.NewWatcher()
 	if err != nil {
 		setting.Logger().Fatal("Failed initialized system file watcher", err)
@@ -37,6 +39,7 @@ func NewWatcher() MyWatcher {
 
 	return MyWatcher{
 		w,
+		ctx,
 		sync.Mutex{},
 		blocker,
 		make(map[string]string),
@@ -120,30 +123,21 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 }
 
 func (w *MyWatcher) UpdateObservableFileList() {
-	var wg sync.WaitGroup
-
-	conf := setting.Flags.Config()
-
-	timer := time.NewTicker(setting.Flags.UpdateInterval)
-	defer timer.Stop()
-
-	ok := true
-
-	for ok {
-		wg.Add(2)
-
-		<-timer.C
+	tasks.RunTaskWithInterval(w.ctx, setting.Flags.UpdateInterval, func(cancel context.CancelFunc) {
+		var wg sync.WaitGroup
+		wg.Add(2) // Add number of task, that we should end before we can continue task
 
 		go w.removeUnnecessaryFiles(&wg)
 		go func(wg *sync.WaitGroup) {
+			conf := setting.Flags.Config()
+
 			w.AddFilesToObservable(*conf)
 
 			wg.Done()
 		}(&wg)
 
 		wg.Wait()
-		_, ok = <-w.blocker
-	}
+	})
 }
 
 func (w *MyWatcher) removeUnnecessaryFiles(wg *sync.WaitGroup) {
