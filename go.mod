@@ -2,7 +2,6 @@ module github.com/wittano/filebot
 
 go 1.21
 
-// TODO Reduce dependencies e.g. gocron, go-toml
 require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-playground/validator/v10 v10.18.0
