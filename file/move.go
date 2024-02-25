@@ -12,8 +12,7 @@ func MoveToDestination(dest string, paths ...string) {
 	dest = path.ReplaceEnvVariablesInPath(dest)
 
 	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
-		setting.Logger().Errorf("Destination directory %s doesn't exist", err, dest)
-		return
+		os.MkdirAll(dest, 0644)
 	}
 
 	for _, src := range paths {
