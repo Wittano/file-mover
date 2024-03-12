@@ -2,7 +2,6 @@ package setting
 
 import (
 	"github.com/mitchellh/go-homedir"
-	"github.com/wittano/filebot/logger"
 	"log"
 	"path/filepath"
 	"time"
@@ -35,18 +34,18 @@ func (f Flag) Config() *Config {
 	return c
 }
 
-func (f Flag) LogLevel() logger.LogLevel {
-	var level logger.LogLevel
+func (f Flag) LogLevel() LogLevel {
+	var level LogLevel
 
 	switch f.LogLevelName {
 	case "ALL":
-		level = logger.ALL
+		level = ALL
 	case "DEBUG":
-		level = logger.DEBUG
+		level = DEBUG
 	case "WARN":
-		level = logger.WARN
+		level = WARN
 	default:
-		level = logger.INFO
+		level = INFO
 	}
 
 	return level

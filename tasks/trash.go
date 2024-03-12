@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"context"
+	"fmt"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
 	"golang.org/x/exp/slices"
@@ -10,15 +11,13 @@ import (
 )
 
 func MoveToTrashTask(cancel context.CancelFunc) {
-	c := setting.Flags.Config()
-
-	for _, dir := range c.Dirs {
+	for _, dir := range setting.Flags.Config().Dirs {
 		if dir.MoveToTrash {
 			moveFileToTrash(cancel, dir)
 		}
 	}
 
-	setting.Logger().Debug("Complete 'moveToTrash' task", nil)
+	setting.Logger().Debug("Complete 'moveToTrash' task")
 }
 
 func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
@@ -50,7 +49,7 @@ func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
 func isAfterDateOfRemovingFile(path string, after uint) bool {
 	stat, err := os.Stat(path)
 	if err != nil {
-		setting.Logger().Warn("Failed to load file info from "+path, err)
+		setting.Logger().Warn(fmt.Sprintf("Failed to load file info from %s: %s", path, err))
 		return false
 	}
 

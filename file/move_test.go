@@ -36,3 +36,21 @@ func TestMoveFileToDestinationButDestDirNotExist(t *testing.T) {
 		t.Fatalf("Failed move file from %s to %s", src.Name(), resPath)
 	}
 }
+
+func TestMoveFiletToDestinationButDestHasTildaChar(t *testing.T) {
+	dir := t.TempDir()
+	src, err := os.CreateTemp(dir, "tests")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(src.Name())
+
+	const homeTestDir = "~/testDir"
+
+	defer os.Remove(homeTestDir)
+	MoveToDestination(homeTestDir, src.Name())
+
+	if _, err = os.Stat(filepath.Join(homeTestDir, filepath.Base(src.Name()))); err != nil {
+		t.Fatal(err)
+	}
+}

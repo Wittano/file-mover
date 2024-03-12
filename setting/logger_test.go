@@ -1,4 +1,4 @@
-package logger
+package setting
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 
 func TestLogInfo(t *testing.T) {
 	path := test.CreateTempFile(t)
-	logger := NewLogger(path, ALL)
+	logger := Logger()
 
 	input := "Test"
 	logger.Info(input)

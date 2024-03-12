@@ -3,6 +3,7 @@ package watcher
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/wittano/filebot/file"
 	"github.com/wittano/filebot/setting"
@@ -117,7 +118,7 @@ func (w *MyWatcher) fillFileObservedMap(src []string, dest string) {
 func (w *MyWatcher) addFilesToObservable(paths ...string) {
 	for _, p := range paths {
 		if err := w.Add(p); err != nil {
-			setting.Logger().Errorf("Cannot add %s file/directory to tracing list", err, p)
+			setting.Logger().Error(fmt.Sprintf("Cannot add %s file/directory to tracing list", p), err)
 		}
 	}
 }

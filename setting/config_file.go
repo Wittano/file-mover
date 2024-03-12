@@ -2,6 +2,7 @@ package setting
 
 import (
 	"errors"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pelletier/go-toml/v2"
@@ -47,7 +48,7 @@ func (d Directory) RealPaths() (paths []string, err error) {
 		}
 
 		if err != nil {
-			Logger().Errorf("Failed get files from pattern '%s'", err, exp)
+			Logger().Error(fmt.Sprintf("Failed get files from pattern '%s'", exp), err)
 			return
 		}
 
@@ -77,7 +78,7 @@ func (d Directory) filterRealPaths(paths []string) (res []string) {
 		for _, exp := range d.Exceptions {
 			reg, err := regexp.Compile(exp)
 			if err != nil {
-				Logger().Warnf("Failed to compile regex: '%s'", nil, exp)
+				Logger().Warn(fmt.Sprintf("Failed to compile regex: '%s'", exp))
 				continue
 			}
 
@@ -107,29 +108,28 @@ func (d Directory) TrashDir() (trashDir string, err error) {
 		return
 	}
 
-	trashName := ".Trash-" + strconv.Itoa(os.Getuid())
+	name := ".Trash-" + strconv.Itoa(os.Getuid())
 
 	for _, device := range fs {
 		if strings.Contains(dir, device.MountedPoint) && device.MountedPoint != "/" {
-			trashDir = filepath.Join(device.MountedPoint, trashName, "files")
+			trashDir = filepath.Join(device.MountedPoint, name, "files")
 			break
 		} else if device.MountedPoint == "/" && isUserRoot() {
 			trashDir = "/root/.Trash-0/files"
 		}
 	}
 
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		return
-	}
-
 	if trashDir == "" {
-		trashDir = filepath.Join(homeDir, ".local", "share", trashName, "files")
+		homeDir, err := homedir.Dir()
+		if err != nil {
+			return "", err
+		}
+
+		trashDir = filepath.Join(homeDir, ".local", "share", name, "files")
 	}
 
-	err = os.MkdirAll(trashDir, 0700)
-	if err != nil {
-		return
+	if err = os.MkdirAll(trashDir, 0700); err != nil {
+		return "", err
 	}
 
 	return

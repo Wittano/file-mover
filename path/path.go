@@ -38,11 +38,11 @@ func PathsFromPattern(src string) ([]string, error) {
 	return paths, nil
 }
 
-func ReplaceEnvVariablesInPath(src string) string {
-	src = replaceTildeInPath(src)
+func ReplaceEnvVariablesInPath(path string) string {
+	path = replaceTildeInPath(path)
 
 	sep := string(filepath.Separator)
-	parts := strings.Split(src, sep)
+	parts := strings.Split(path, sep)
 
 	for i, s := range parts {
 		if v, ok := os.LookupEnv(strings.ReplaceAll(s, "$", "")); ok && v != "" {
