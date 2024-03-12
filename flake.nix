@@ -7,12 +7,16 @@
     let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
       filebot = pkgs.callPackage ./default.nix { };
+      go = pkgs.go;
     in
     {
       packages.x86_64-linux.default = filebot;
       nixosModules."filebot" = import ./service.nix;
       devShells.x86_64-linux.default = pkgs.mkShell {
-        buildInputs = with pkgs; [ go ];
+        hardeningDisable = [ "all" ];
+        buildInputs = with pkgs; [ go golangci-lint ];
+
+        GOROOT = "${go}/share/go";
       };
     };
 }
