@@ -11,9 +11,11 @@ import (
 
 func TestLogInfo(t *testing.T) {
 	path := test.CreateTempFile(t)
+	Flags.LogFilePath = path
+
 	logger := Logger()
 
-	input := "Test"
+	const input = "Test"
 	logger.Info(input)
 
 	time.Sleep(10 * time.Millisecond)
@@ -28,8 +30,8 @@ func TestLogInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(res) == 0 {
-		t.Fatalf("Log file is empty")
+	if !bytes.Contains(res, []byte(input)) {
+		t.Fatalf("Log didn't save")
 	}
 }
 
