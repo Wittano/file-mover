@@ -14,7 +14,14 @@
       nixosModules."filebot" = import ./service.nix;
       devShells.x86_64-linux.default = pkgs.mkShell {
         hardeningDisable = [ "all" ];
-        buildInputs = with pkgs; [ go golangci-lint ];
+        buildInputs = with pkgs; [
+          # Go tools
+          go
+          golangci-lint
+
+          # Github actions 
+          act
+        ];
 
         GOROOT = "${go}/share/go";
       };
