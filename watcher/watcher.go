@@ -25,7 +25,7 @@ func (w *MyWatcher) Close() (err error) {
 	close(w.blocker)
 
 	err = w.Watcher.Close()
-	w.mutex.Lock()
+	w.mutex.Unlock()
 
 	return
 }
@@ -58,7 +58,9 @@ func (w MyWatcher) ObserveFiles() {
 
 			if e.Has(fsnotify.Create) || e.Has(fsnotify.Rename) {
 				if dir, ok := w.fileObserved[e.Name]; ok {
-					file.MoveToDestination(dir, e.Name)
+					if err := file.MoveToDestination(dir, e.Name); err != nil {
+						setting.Logger().Error(fmt.Sprintf("Failed move file from %s to %s", dir, e.Name), err)
+					}
 				}
 			}
 		case err, ok := <-w.Errors:
@@ -72,7 +74,7 @@ func (w MyWatcher) ObserveFiles() {
 	}
 }
 
-func (w MyWatcher) WaitForEvents() {
+func (w *MyWatcher) WaitForEvents() {
 	if ok := <-w.blocker; !ok {
 		w.Close()
 
@@ -102,7 +104,13 @@ func (w *MyWatcher) AddFilesToObservable(config setting.Config) {
 			go w.fillFileObservedMap(paths, destPath)
 
 			w.addFilesToObservable(paths...)
-			go file.MoveToDestination(destPath, paths...)
+
+			go func(dest string, srcs []string) {
+				if err = file.MoveToDestination(dest, srcs...); err != nil {
+					setting.Logger().Error(fmt.Sprintf("One of soruce file wasn't moved to destination directory"), err)
+					return
+				}
+			}(destPath, paths)
 		}
 	}
 }

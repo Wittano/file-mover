@@ -41,7 +41,12 @@ func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
 				return
 			}
 
-			go file.MoveToDestination(trashPath, p)
+			go func(dest string, src string) {
+				if err = file.MoveToDestination(dest, src); err != nil {
+					setting.Logger().Error(fmt.Sprintf("One of soruce file wasn't moved to destination directory"), err)
+					return
+				}
+			}(trashPath, p)
 		}
 	}
 }

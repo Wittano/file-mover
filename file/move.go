@@ -7,26 +7,71 @@ import (
 	"github.com/wittano/filebot/setting"
 	"os"
 	"path/filepath"
+	"strings"
+	"syscall"
 )
 
-func MoveToDestination(dest string, paths ...string) {
-	dest = path.ReplaceEnvVariablesInPath(dest)
+const (
+	unixOwnerWritePermIndex = 2
+	unixGroupWritePermIndex = 5
+	unixWritePermission     = "w"
+)
 
-	if _, err := os.Stat(dest); errors.Is(err, os.ErrNotExist) {
-		os.MkdirAll(dest, 0644)
+func MoveToDestination(dest string, paths ...string) (err error) {
+	fixedDest := path.ReplaceEnvVariablesInPath(dest)
+
+	if err = createDestDir(fixedDest); err != nil {
+		return
 	}
 
 	for _, src := range paths {
-		newPath := filepath.Join(dest, filepath.Base(src))
+		srcInfo, err := os.Stat(src)
+		if err != nil {
+			setting.Logger().Warn(fmt.Sprintf("Failed read stats from %s", src))
+			continue
+		}
 
-		if _, err := os.Stat(src); !errors.Is(err, os.ErrNotExist) {
-			err := os.Rename(src, newPath)
+		if err = checkFilePermissions(srcInfo); err != nil {
+			setting.Logger().Error("User hasn't permission to move file", err)
+			continue
+		}
+
+		newPath := filepath.Join(fixedDest, filepath.Base(src))
+
+		if _, err = os.Stat(src); !errors.Is(err, os.ErrNotExist) {
+			err = os.Rename(src, newPath)
 			if err != nil {
 				setting.Logger().Error(fmt.Sprintf("Failed to move file from %s to %s", src, newPath), err)
-				return
+				continue
 			}
 
 			setting.Logger().Info(fmt.Sprintf("Moved file from %s to %s", src, dest))
 		}
 	}
+
+	return nil
+}
+
+func checkFilePermissions(stat os.FileInfo) error {
+	writePermIndex := strings.Index(stat.Mode().String(), unixWritePermission)
+	if writePermIndex == -1 {
+		return errors.New("no one has write permission")
+	}
+
+	switch writePermIndex {
+	case unixOwnerWritePermIndex:
+		ownerUID := int(stat.Sys().(*syscall.Stat_t).Uid)
+
+		if os.Getuid() != ownerUID {
+			return errors.New("user isn't owner")
+		}
+	case unixGroupWritePermIndex:
+		groupID := int(stat.Sys().(*syscall.Stat_t).Gid)
+
+		if os.Getgid() != groupID {
+			return errors.New("user doesn't belong to group")
+		}
+	}
+
+	return nil
 }
