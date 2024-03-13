@@ -9,9 +9,6 @@ test: build
 clean:
 	rm -r build
 
-systemd: install
-	cp systemd/filebot.service /etc/systemd/system/filebot.service
-
 install: build
 	cp build/filebot /usr/bin/filebot
 
