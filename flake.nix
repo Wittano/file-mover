@@ -6,24 +6,24 @@
   outputs = { self, nixpkgs, }:
     let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
-      filebot = pkgs.callPackage ./default.nix { };
-      go = pkgs.go;
+      filebot = pkgs.callPackage ./nix/default.nix { };
+      goSDK = pkgs.go;
     in
     {
       packages.x86_64-linux.default = filebot;
-      nixosModules."filebot" = import ./service.nix;
+      nixosModules.default = import ./nix/service.nix;
       devShells.x86_64-linux.default = pkgs.mkShell {
         hardeningDisable = [ "all" ];
         buildInputs = with pkgs; [
           # Go tools
-          go
+          goSDK
           golangci-lint
 
           # Github actions 
           act
         ];
 
-        GOROOT = "${go}/share/go";
+        GOROOT = "${goSDK}/share/go";
       };
     };
 }
