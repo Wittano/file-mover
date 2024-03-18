@@ -2,7 +2,7 @@
 
 buildGoModule rec {
   name = "filebot";
-  src = ./.;
+  src = ./../.;
   version = "v1.0.0";
 
   vendorHash = "sha256-zga1pCBqisDLzDN6rO68iCQlGXmTfkUk+fqNI54yhNo=";

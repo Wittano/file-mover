@@ -19,6 +19,9 @@
           goSDK
           golangci-lint
 
+          # Nix
+          nixpkgs-fmt
+
           # Github actions 
           act
         ];
