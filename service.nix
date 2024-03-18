@@ -1,7 +1,8 @@
-{ config, lib, pkgs, filebot, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   cfg = config.services.filebot;
+  program = pkgs.callPackage ./default.nix { };
 in
 {
   options = {
@@ -45,7 +46,7 @@ in
       serviceConfig.User = "${cfg.user}";
       wantedBy = [ "multi-user.target" ];
       script = ''
-        ${filebot}/bin/filebot -c ${builtins.toString cfg.configPath} -u ${cfg.updateInterval}
+        ${program}/bin/filebot -c ${builtins.toString cfg.configPath} -u ${cfg.updateInterval}
       '';
     };
   };
