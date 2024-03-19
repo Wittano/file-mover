@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"context"
 	"github.com/wittano/filebot/internal/test"
 	"github.com/wittano/filebot/setting"
 	"os"
@@ -45,9 +44,8 @@ func TestMoveFileToTrash(t *testing.T) {
 		MoveToTrash: true,
 		After:       0,
 	}
-	_, cancel := context.WithCancel(context.Background())
 
-	moveFileToTrash(cancel, dir)
+	moveFileToTrash(dir)
 
 	time.Sleep(10 * time.Millisecond)
 

@@ -132,29 +132,49 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 }
 
 func (w *MyWatcher) UpdateObservableFileList() {
-	tasks.RunTaskWithInterval(w.ctx, setting.Flags.UpdateInterval, func(cancel context.CancelFunc) {
-		var wg sync.WaitGroup
-		wg.Add(2) // Add number of task, that we should end before we can continue task
+	tasks.RunTaskWithInterval(w.ctx, setting.Flags.UpdateInterval, w.updateObservableFileList)
+}
 
-		go w.removeUnnecessaryFiles(&wg)
-		go func(wg *sync.WaitGroup) {
+func (w *MyWatcher) updateObservableFileList(ctx context.Context) error {
+	select {
+	case <-w.ctx.Done():
+		return nil
+	default:
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2) // Add number of task, that we should end before we can continue task
+
+	go w.removeUnnecessaryFiles(ctx, &wg)
+	go func() {
+		defer wg.Done()
+
+		select {
+		case <-ctx.Done():
+			return
+		default:
 			conf := setting.Flags.Config()
 
 			w.AddFilesToObservable(*conf)
+		}
+	}()
 
-			wg.Done()
-		}(&wg)
+	wg.Wait()
 
-		wg.Wait()
-	})
+	return nil
 }
 
-func (w *MyWatcher) removeUnnecessaryFiles(wg *sync.WaitGroup) {
+func (w *MyWatcher) removeUnnecessaryFiles(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	for _, path := range w.WatchList() {
-		if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-			w.Remove(path)
+	select {
+	case <-ctx.Done():
+		return
+	default:
+		for _, path := range w.WatchList() {
+			if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+				w.Remove(path)
+			}
 		}
 	}
 }

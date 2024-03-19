@@ -10,22 +10,30 @@ import (
 	"time"
 )
 
-func MoveToTrashTask(cancel context.CancelFunc) {
+func MoveToTrashTask(ctx context.Context) (err error) {
+	select {
+	case <-ctx.Done():
+		return context.Canceled
+	default:
+	}
+
 	for _, dir := range setting.Flags.Config().Dirs {
 		if dir.MoveToTrash {
-			moveFileToTrash(cancel, dir)
+			if err = moveFileToTrash(dir); err != nil {
+				return
+			}
 		}
 	}
 
-	setting.Logger().Debug("Complete 'moveToTrash' task")
+	setting.Logger().Debug("Complete 'moveToTrash' taskDetails")
+
+	return
 }
 
-func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
+func moveFileToTrash(dir setting.Directory) error {
 	paths, err := dir.RealPaths()
 	if err != nil {
-		setting.Logger().Error("Failed to get file paths", err)
-		cancel()
-		return
+		return err
 	}
 
 	for _, p := range paths {
@@ -36,9 +44,7 @@ func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
 		if isAfterDateOfRemovingFile(p, dir.After) {
 			trashPath, err := dir.TrashDir()
 			if err != nil {
-				setting.Logger().Error("Failed to find trash directory", err)
-				cancel()
-				return
+				return err
 			}
 
 			go func(dest string, src string) {
@@ -49,6 +55,8 @@ func moveFileToTrash(cancel context.CancelFunc, dir setting.Directory) {
 			}(trashPath, p)
 		}
 	}
+
+	return nil
 }
 
 func isAfterDateOfRemovingFile(path string, after uint) bool {

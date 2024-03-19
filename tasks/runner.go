@@ -5,8 +5,13 @@ import (
 	"time"
 )
 
-func RunTaskWithInterval(ctx context.Context, interval time.Duration, task func(cancel context.CancelFunc)) {
-	_, cancel := context.WithCancel(ctx)
+type taskRunner func(ctx context.Context) error
+
+func RunTaskWithInterval(ctx context.Context, interval time.Duration, task taskRunner) {
+	var err error
+
+	newCtx, cancel := context.WithCancelCause(ctx)
+	defer cancel(err)
 
 	go func() {
 		timer := time.NewTicker(interval)
@@ -14,10 +19,12 @@ func RunTaskWithInterval(ctx context.Context, interval time.Duration, task func(
 
 		for {
 			select {
-			case <-ctx.Done():
-				return
+			case <-newCtx.Done():
+				break
 			case <-timer.C:
-				task(cancel)
+				if err = task(newCtx); err != nil {
+					break
+				}
 			}
 		}
 	}()
