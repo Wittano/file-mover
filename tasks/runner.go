@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"context"
+	"github.com/wittano/filebot/setting"
 	"time"
 )
 
@@ -20,10 +21,11 @@ func RunTaskWithInterval(ctx context.Context, interval time.Duration, task taskR
 		for {
 			select {
 			case <-newCtx.Done():
-				break
+				return
 			case <-timer.C:
 				if err = task(newCtx); err != nil {
-					break
+					setting.Logger().Error("Error during execute scheduled task", err)
+					return
 				}
 			}
 		}

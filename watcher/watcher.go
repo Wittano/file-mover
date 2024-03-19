@@ -15,14 +15,14 @@ import (
 type MyWatcher struct {
 	*fsnotify.Watcher
 	ctx          context.Context
+	stop         context.CancelFunc
 	mutex        sync.Mutex
-	blocker      chan bool
 	fileObserved map[string]string
 }
 
 func (w *MyWatcher) Close() (err error) {
 	w.mutex.Lock()
-	close(w.blocker)
+	w.stop()
 
 	err = w.Watcher.Close()
 	w.mutex.Unlock()
@@ -36,23 +36,26 @@ func NewWatcher(ctx context.Context) MyWatcher {
 		setting.Logger().Fatal("Failed initialized system file watcher", err)
 	}
 
-	blocker := make(chan bool)
+	newCtx, cancel := context.WithCancel(ctx)
 
 	return MyWatcher{
 		w,
-		ctx,
+		newCtx,
+		cancel,
 		sync.Mutex{},
-		blocker,
 		make(map[string]string),
 	}
 }
 
-func (w MyWatcher) ObserveFiles() {
+func (w *MyWatcher) ObserveFiles() {
+	defer w.Close()
+
 	for {
 		select {
+		case <-w.ctx.Done():
+			return
 		case e, ok := <-w.Events:
 			if !ok {
-				w.blocker <- false
 				return
 			}
 
@@ -65,7 +68,6 @@ func (w MyWatcher) ObserveFiles() {
 			}
 		case err, ok := <-w.Errors:
 			if !ok {
-				w.blocker <- false
 				return
 			}
 
@@ -75,11 +77,8 @@ func (w MyWatcher) ObserveFiles() {
 }
 
 func (w *MyWatcher) WaitForEvents() {
-	if ok := <-w.blocker; !ok {
-		w.Close()
-
-		return
-	}
+	<-w.ctx.Done()
+	w.Close()
 }
 
 func (w *MyWatcher) AddFilesToObservable(config setting.Config) {
