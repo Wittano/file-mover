@@ -1,13 +1,13 @@
-{ pkgs ? import <nixpkgs> { }, goSDK }: pkgs.mkShell {
+{ mkShell, go, nixpkgs-fmt, nixd }: mkShell {
   hardeningDisable = [ "all" ];
-  nativeBuildInputs = with pkgs; [
+  nativeBuildInputs = [
     # Go tools
-    goSDK
+    go
 
     # Nix
     nixpkgs-fmt
     nixd
   ];
 
-  GOROOT = "${goSDK}/share/go";
+  GOROOT = "${go}/share/go";
 }

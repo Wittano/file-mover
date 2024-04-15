@@ -6,12 +6,10 @@
   outputs = { self, nixpkgs, }:
     let
       pkgs = import nixpkgs { system = "x86_64-linux"; };
-      filebot = pkgs.callPackage ./default.nix { };
-      goSDK = pkgs.go;
     in
     {
-      packages.x86_64-linux.default = filebot;
-      nixosModules.default = import ./service.nix;
-      devShells.x86_64-linux.default = import ./shell.nix { inherit pkgs goSDK; }; 
+      packages.x86_64-linux.default = pkgs.callPackage ./default.nix { };
+      nixosModules.default = ./service.nix;
+      devShells.x86_64-linux.default = pkgs.callPackage ./shell.nix { };
     };
 }
