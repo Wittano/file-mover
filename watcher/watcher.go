@@ -152,9 +152,9 @@ func (w *MyWatcher) updateObservableFileList(ctx context.Context) error {
 		case <-ctx.Done():
 			return
 		default:
-			conf := setting.Flags.Config()
+			conf, _ := setting.Flags.Config()
 
-			w.AddFilesToObservable(*conf)
+			w.AddFilesToObservable(conf)
 		}
 	}()
 

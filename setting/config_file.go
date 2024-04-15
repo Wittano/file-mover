@@ -21,7 +21,7 @@ type Config struct {
 	Dirs []Directory `validate:"required"`
 }
 
-var config *Config
+var config Config
 
 type Directory struct {
 	Src         []string `validate:"required"`
@@ -30,16 +30,12 @@ type Directory struct {
 	MoveToTrash bool `validate:"required_without=Dest"`
 	After       uint
 	Exceptions  []string
+	UID         uint32
+	GID         uint32
+	IsRoot      bool
 }
 
 func (d Directory) RealPaths() (paths []string, err error) {
-	v := validator.New(validator.WithRequiredStructEnabled())
-
-	err = v.Struct(d)
-	if err != nil {
-		return
-	}
-
 	for _, exp := range d.Src {
 		if d.Recursive {
 			paths, err = path.PathsFromPatternRecursive(exp)
@@ -139,29 +135,28 @@ func isUserRoot() bool {
 	return os.Getuid() == 0
 }
 
-func load(path string) (*Config, error) {
+func load(path string) (Config, error) {
 	bytes, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
 	var unmarshal map[string]Directory
 	if err := toml.Unmarshal(bytes, &unmarshal); err != nil {
-		return nil, err
+		return Config{}, err
 	}
 
 	if len(unmarshal) == 0 {
-		return nil, errors.New("config file is empty")
+		return Config{}, errors.New("config file is empty")
 	}
 
-	config = new(Config)
 	config.Dirs = maps.Values(unmarshal)
 
 	v := validator.New(validator.WithRequiredStructEnabled())
 
 	for _, d := range config.Dirs {
 		if err = v.Struct(d); err != nil {
-			return nil, err
+			return Config{}, err
 		}
 	}
 

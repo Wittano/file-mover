@@ -38,11 +38,14 @@ func MoveToDestination(dest string, paths ...string) (err error) {
 
 		newPath := filepath.Join(fixedDest, filepath.Base(src))
 
-		if _, err = os.Stat(src); !errors.Is(err, os.ErrNotExist) {
-			err = os.Rename(src, newPath)
-			if err != nil {
+		if stat, err := os.Stat(src); err == nil {
+			if err = os.Rename(src, newPath); err != nil {
 				setting.Logger().Error(fmt.Sprintf("Failed to move file from %s to %s", src, newPath), err)
 				continue
+			}
+
+			if err = updateOwnerAndGroupID(stat, newPath); err != nil {
+				return err
 			}
 
 			setting.Logger().Info(fmt.Sprintf("Moved file from %s to %s", src, dest))
@@ -50,6 +53,13 @@ func MoveToDestination(dest string, paths ...string) (err error) {
 	}
 
 	return nil
+}
+
+func updateOwnerAndGroupID(ogInfo os.FileInfo, src string) (err error) {
+	conf, _ := setting.Flags.Config()
+	uid, gid := uid(src, ogInfo, conf), gid(src, ogInfo, conf)
+
+	return os.Chown(src, int(uid), int(gid))
 }
 
 func checkFilePermissions(stat os.FileInfo) error {

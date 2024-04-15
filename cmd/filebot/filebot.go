@@ -11,11 +11,15 @@ import (
 
 func runMainCommand(_ *cobra.Command, _ []string) {
 	ctx := context.Background()
-	conf := setting.Flags.Config()
+	conf, err := setting.Flags.Config()
+	if err != nil {
+		setting.Logger().Fatal("Failed load configuration", err)
+		return
+	}
 
 	w := watcher.NewWatcher(ctx)
 	defer w.Close()
-	w.AddFilesToObservable(*conf)
+	w.AddFilesToObservable(conf)
 
 	tasks.RunTaskWithInterval(ctx, 1*time.Hour, tasks.MoveToTrashTask)
 

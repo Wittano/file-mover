@@ -21,17 +21,12 @@ var Flags = Flag{
 	"",
 }
 
-func (f Flag) Config() *Config {
-	if config != nil {
-		return config
+func (f Flag) Config() (Config, error) {
+	if config.Dirs != nil {
+		return config, nil
 	}
 
-	c, err := load(f.ConfigPath)
-	if err != nil {
-		Logger().Fatal("Failed to load config file", err)
-	}
-
-	return c
+	return load(f.ConfigPath)
 }
 
 func (f Flag) LogLevel() LogLevel {

@@ -17,7 +17,12 @@ func MoveToTrashTask(ctx context.Context) (err error) {
 	default:
 	}
 
-	for _, dir := range setting.Flags.Config().Dirs {
+	config, err := setting.Flags.Config()
+	if err != nil {
+		return err
+	}
+
+	for _, dir := range config.Dirs {
 		if dir.MoveToTrash {
 			if err = moveFileToTrash(dir); err != nil {
 				return
