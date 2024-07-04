@@ -93,6 +93,10 @@ func (d Directory) TrashDir() (trashDir string, err error) {
 		return "", nil
 	}
 
+	if trashDir, err = d.defaultHomeTrash(); err == nil {
+		return
+	}
+
 	dir := filepath.Dir(d.Src[0])
 	_, err = os.Stat(dir)
 	if err != nil {
@@ -126,6 +130,30 @@ func (d Directory) TrashDir() (trashDir string, err error) {
 
 	if err = os.MkdirAll(trashDir, 0700); err != nil {
 		return "", err
+	}
+
+	return
+}
+
+func (d Directory) defaultHomeTrash() (trashDir string, err error) {
+	var isHomeDir bool
+
+	for _, src := range d.Src {
+		if strings.HasPrefix(path.ReplaceEnvVariablesInPath(src), "/home") {
+			isHomeDir = true
+			break
+		}
+	}
+
+	dir, err := homedir.Dir()
+	if err != nil {
+		return "", err
+	}
+
+	if isHomeDir {
+		trashDir = filepath.Join(dir, ".local", "share", "Trash", "files")
+	} else {
+		err = errors.New("settings: sources doesn't refer to home directory")
 	}
 
 	return
