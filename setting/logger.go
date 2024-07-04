@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-type LogLevel uint
+type LogLevel uint8
 
 const (
 	ALL   LogLevel = 0
@@ -35,8 +35,7 @@ func writeToLogFile(path string, data []byte) {
 	}
 	defer f.Close()
 
-	_, err = f.Write(data)
-	if err != nil {
+	if _, err = f.Write(data); err != nil {
 		log.Fatalf("Failed to log into %s: %s", f.Name(), err)
 	}
 }

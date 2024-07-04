@@ -131,7 +131,7 @@ func (w *MyWatcher) addFilesToObservable(paths ...string) {
 }
 
 func (w *MyWatcher) UpdateObservableFileList() {
-	tasks.RunTaskWithInterval(w.ctx, setting.Flags.UpdateInterval, w.updateObservableFileList)
+	tasks.Run(w.ctx, setting.Flags.UpdateInterval, w.updateObservableFileList)
 }
 
 func (w *MyWatcher) updateObservableFileList(ctx context.Context) error {

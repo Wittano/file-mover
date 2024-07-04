@@ -8,7 +8,7 @@ import (
 
 type taskRunner func(ctx context.Context) error
 
-func RunTaskWithInterval(ctx context.Context, interval time.Duration, task taskRunner) {
+func Run(ctx context.Context, interval time.Duration, task taskRunner) {
 	var err error
 
 	newCtx, cancel := context.WithCancelCause(ctx)

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func MoveToTrashTask(ctx context.Context) (err error) {
+func MoveToTrash(ctx context.Context) (err error) {
 	select {
 	case <-ctx.Done():
 		return context.Canceled

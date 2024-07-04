@@ -21,7 +21,7 @@ func runMainCommand(_ *cobra.Command, _ []string) {
 	defer w.Close()
 	w.AddFilesToObservable(conf)
 
-	tasks.RunTaskWithInterval(ctx, 1*time.Hour, tasks.MoveToTrashTask)
+	tasks.Run(ctx, 1*time.Hour, tasks.MoveToTrash)
 
 	go w.UpdateObservableFileList()
 	go w.ObserveFiles()
